@@ -6,6 +6,7 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ApiResource()
@@ -15,16 +16,16 @@ use Doctrine\ORM\Mapping as ORM;
 class Group
 {
     /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="uuid", unique=true)
+     * @ORM\GeneratedValue(strategy="CUSTOM")
+     * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
      */
-    private $id;
+    protected UuidInterface $id;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $name;
+    public string $name;
 
     /**
      * @ORM\Column(type="boolean")
@@ -46,26 +47,20 @@ class Group
      */
     private $subGroups;
 
+    /**
+     * @ORM\OneToMany(targetEntity="Productively\Api\Entity\GroupMember", mappedBy="userGroup", orphanRemoval=true)
+     */
+    private $groupMembers;
+
     public function __construct()
     {
         $this->subGroups = new ArrayCollection();
+        $this->groupMembers = new ArrayCollection();
     }
 
-    public function getId(): ?int
+    public function getId(): UuidInterface
     {
         return $this->id;
-    }
-
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    public function setName(?string $name): self
-    {
-        $this->name = $name;
-
-        return $this;
     }
 
     public function getOwner(): ?self
@@ -73,11 +68,9 @@ class Group
         return $this->owner;
     }
 
-    public function setOwner(?self $owner): self
+    public function setOwner(?self $owner)
     {
         $this->owner = $owner;
-
-        return $this;
     }
 
     /**
@@ -105,6 +98,37 @@ class Group
             // set the owning side to null (unless already changed)
             if ($subGroup->getOwner() === $this) {
                 $subGroup->setOwner(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|GroupMember[]
+     */
+    public function getGroupMembers(): Collection
+    {
+        return $this->groupMembers;
+    }
+
+    public function addGroupMember(GroupMember $groupMember): self
+    {
+        if (!$this->groupMembers->contains($groupMember)) {
+            $this->groupMembers[] = $groupMember;
+            $groupMember->setUserGroup($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGroupMember(GroupMember $groupMember): self
+    {
+        if ($this->groupMembers->contains($groupMember)) {
+            $this->groupMembers->removeElement($groupMember);
+            // set the owning side to null (unless already changed)
+            if ($groupMember->getUserGroup() === $this) {
+                $groupMember->setUserGroup(null);
             }
         }
 
