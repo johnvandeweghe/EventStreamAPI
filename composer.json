@@ -1,6 +1,12 @@
 {
     "type": "project",
     "license": "proprietary",
+    "authors": [
+        {
+            "name": "John VanDeWeghe",
+            "email": "vandeweghe@lunixlabs.com"
+        }
+    ],
     "require": {
         "php": "^7.4",
         "ext-ctype": "*",
