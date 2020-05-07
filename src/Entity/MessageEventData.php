@@ -4,10 +4,14 @@ namespace Productively\Api\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Ramsey\Uuid\UuidInterface;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     collectionOperations={},
+ *     itemOperations={}
+ * )
  * @ORM\Entity(repositoryClass="Productively\Api\Repository\MessageEventDataRepository")
  */
 class MessageEventData
@@ -22,6 +26,7 @@ class MessageEventData
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"event:read", "event:write"})
      */
     public string $text;
 

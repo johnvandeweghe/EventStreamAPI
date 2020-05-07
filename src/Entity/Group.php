@@ -2,14 +2,23 @@
 
 namespace Productively\Api\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Ramsey\Uuid\UuidInterface;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     collectionOperations={"get","post"},
+ *     itemOperations={"get"},
+ *     normalizationContext={"groups"={"group:read"}},
+ *     denormalizationContext={"groups"={"group:write"}}
+ * )
  * @ORM\Entity(repositoryClass="Productively\Api\Repository\GroupRepository")
  * @ORM\Table(name="`group`")
  */
@@ -20,41 +29,50 @@ class Group
      * @ORM\Column(type="uuid", unique=true)
      * @ORM\GeneratedValue(strategy="CUSTOM")
      * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
+     * @Groups({"group:read", "event:read", "event:write", "group-member:read", "group-member:write"})
      */
     protected UuidInterface $id;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"group:read", "group:write"})
      */
     public string $name;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"group:read", "group:write"})
      */
     public bool $discoverable;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"group:read", "group:write"})
      */
     public bool $private;
 
     /**
      * @ORM\ManyToOne(targetEntity="Productively\Api\Entity\Group", inversedBy="subGroups")
+     * @Groups({"group:read", "group:write"})
+     * @ApiFilter(SearchFilter::class, properties={"owner.id": "exact"})
      */
     private $owner;
 
     /**
      * @ORM\OneToMany(targetEntity="Productively\Api\Entity\Group", mappedBy="owner")
+     * @ApiSubresource(maxDepth=1)
      */
     private $subGroups;
 
     /**
      * @ORM\OneToMany(targetEntity="Productively\Api\Entity\GroupMember", mappedBy="userGroup", orphanRemoval=true)
+     * @ApiSubresource(maxDepth=1)
      */
     private $groupMembers;
 
     /**
      * @ORM\OneToMany(targetEntity="Productively\Api\Entity\Event", mappedBy="eventGroup", orphanRemoval=true)
+     * @ApiSubresource()
      */
     private $events;
 

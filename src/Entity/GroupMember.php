@@ -2,14 +2,23 @@
 
 namespace Productively\Api\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Ramsey\Uuid\UuidInterface;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     collectionOperations={"get","post"},
+ *     itemOperations={"get", "delete"},
+ *     normalizationContext={"groups"={"group-member:read"}},
+ *     denormalizationContext={"groups"={"group-member:write"}}
+ * )
  * @ORM\Entity(repositoryClass="Productively\Api\Repository\GroupMemberRepository")
  */
 class GroupMember
@@ -19,22 +28,27 @@ class GroupMember
      * @ORM\Column(type="uuid", unique=true)
      * @ORM\GeneratedValue(strategy="CUSTOM")
      * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
+     * @Groups({"group-member:read", "subscription:read", "subscription:write"})
      */
     protected UuidInterface $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"group-member:read", "group-member:write"})
+     * @ApiFilter(SearchFilter::class, strategy="exact")
      */
     protected $userIdentifer;
 
     /**
      * @ORM\ManyToOne(targetEntity="Productively\Api\Entity\Group", inversedBy="groupMembers")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"group-member:read", "group-member:write"})
      */
     protected $userGroup;
 
     /**
      * @ORM\OneToMany(targetEntity="Productively\Api\Entity\Subscription", mappedBy="groupMember", orphanRemoval=true)
+     * @ApiSubresource()
      */
     protected $subscriptions;
 
