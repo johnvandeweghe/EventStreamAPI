@@ -53,10 +53,16 @@ class Group
      */
     private $groupMembers;
 
+    /**
+     * @ORM\OneToMany(targetEntity="Productively\Api\Entity\Event", mappedBy="eventGroup", orphanRemoval=true)
+     */
+    private $events;
+
     public function __construct()
     {
         $this->subGroups = new ArrayCollection();
         $this->groupMembers = new ArrayCollection();
+        $this->events = new ArrayCollection();
     }
 
     public function getId(): UuidInterface
@@ -130,6 +136,37 @@ class Group
             // set the owning side to null (unless already changed)
             if ($groupMember->getUserGroup() === $this) {
                 $groupMember->setUserGroup(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Event[]
+     */
+    public function getEvents(): Collection
+    {
+        return $this->events;
+    }
+
+    public function addEvent(Event $event): self
+    {
+        if (!$this->events->contains($event)) {
+            $this->events[] = $event;
+            $event->setEventGroup($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEvent(Event $event): self
+    {
+        if ($this->events->contains($event)) {
+            $this->events->removeElement($event);
+            // set the owning side to null (unless already changed)
+            if ($event->getEventGroup() === $this) {
+                $event->setEventGroup(null);
             }
         }
 
