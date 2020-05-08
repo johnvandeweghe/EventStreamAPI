@@ -1,7 +1,17 @@
 api_platform:
+    version: 1.0.0
+    show_webby: false
+    path_segment_name_generator: 'Productively\Api\PathSegmentGenerator'
     mapping:
         paths: ['%kernel.project_dir%/src/Entity']
     patch_formats:
         json: ['application/merge-patch+json']
+    collection:
+        pagination:
+            partial: true # Disabled by default
     swagger:
         versions: [3]
+        api_keys:
+            jwt:
+                name: 'Authorization'
+                type: 'header'
