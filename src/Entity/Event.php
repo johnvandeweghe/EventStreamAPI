@@ -17,7 +17,7 @@ use Ramsey\Uuid\UuidInterface;
  *     denormalizationContext={"groups"={"event:write"}}
  * )
  * @ORM\Entity(repositoryClass="Productively\Api\Repository\EventRepository")
- * @ORM\Table(indexes={@ORM\Index(name="grooup_datetime", columns={"event_group_id", "datetime"})})
+ * @ORM\Table(indexes={@ORM\Index(name="group_datetime", columns={"event_group_id", "datetime"})})
  */
 class Event
 {
