@@ -20,6 +20,7 @@ use Ramsey\Uuid\UuidInterface;
  *     denormalizationContext={"groups"={"group-member:write"}}
  * )
  * @ORM\Entity(repositoryClass="Productively\Api\Repository\GroupMemberRepository")
+ * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uq_groupmembership", columns={"user_identifier", "user_group_id"})})
  */
 class GroupMember
 {
@@ -37,7 +38,7 @@ class GroupMember
      * @Groups({"group-member:read", "group-member:write"})
      * @ApiFilter(SearchFilter::class, strategy="exact")
      */
-    protected $userIdentifer;
+    public string $userIdentifier;
 
     /**
      * @ORM\ManyToOne(targetEntity="Productively\Api\Entity\Group", inversedBy="groupMembers")
@@ -60,18 +61,6 @@ class GroupMember
     public function getId(): UuidInterface
     {
         return $this->id;
-    }
-
-    public function getUserIdentifer(): ?string
-    {
-        return $this->userIdentifer;
-    }
-
-    public function setUserIdentifer(string $userIdentifer): self
-    {
-        $this->userIdentifer = $userIdentifer;
-
-        return $this;
     }
 
     public function getUserGroup(): ?Group

@@ -40,7 +40,6 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
     private function modifyQuery(QueryBuilder $queryBuilder, string $resourceClass): void
     {
         if (
-            $this->security->isGranted('ROLE_JWT_AUTHENTICATED') ||
             null === $user = $this->security->getUser()
         ) {
             return;
@@ -72,12 +71,14 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
     {
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
-        $queryBuilder->leftJoin("$rootAlias.groupMembers", 'gm', Expr\Join::ON, "gm.userIdentifier = :userId");
         $queryBuilder->leftJoin("$rootAlias.owner", 'og');
-        $queryBuilder->leftJoin("og.groupMembers", 'ogm', Expr\Join::ON, "ogm.userIdentifier = :userId");
-        $queryBuilder->andWhere("gm.userIdentifier = :userId OR ogm.userIdentifier = :userId");
+        $queryBuilder->leftJoin("og.groupMembers", 'ogm');
+
+        //Order of joins here matters, when this was first the ogm was broken by the gm part being replaced incorrectly.
+        $queryBuilder->leftJoin("$rootAlias.groupMembers", 'gm');
+
+        $queryBuilder->andWhere("gm.userIdentifier = :userId OR (og is not null and ogm.userIdentifier = :userId)");
         $queryBuilder->setParameter('userId', $user->getUsername());
-        $queryBuilder->groupBy("$rootAlias.id");
 
         //TODO: Grant access to more than one layer of children
 
@@ -95,7 +96,7 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
         $queryBuilder->innerJoin("$rootAlias.userGroup", 'ug');
         $queryBuilder->innerJoin("ug.groupMembers", 'gm', Expr\Join::WITH, "gm.userIdentifier = :userId");
         $queryBuilder->setParameter('userId', $user->getUsername());
-        $queryBuilder->groupBy("$rootAlias.id");
+
     }
 
     /**
@@ -109,7 +110,7 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
 
         $queryBuilder->innerJoin("$rootAlias.groupMember", 'gm', Expr\Join::WITH, "gm.userIdentifier = :userId");
         $queryBuilder->setParameter('userId', $user->getUsername());
-        $queryBuilder->groupBy("$rootAlias.id");
+
     }
     /**
      * Limits event queries to groups that the user is a member of, and sorts them by time.
@@ -122,9 +123,9 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
         $queryBuilder->innerJoin("$rootAlias.eventGroup", 'eg');
-        $queryBuilder->innerJoin("eg.groupMembers", 'gm', Expr\Join::WITH, "gm.userIdentifier = :userId");
+        $queryBuilder->innerJoin("eg.groupMembers", 'gm');
+        $queryBuilder->andWhere("gm.userIdentifier = :userId");
         $queryBuilder->setParameter('userId', $user->getUsername());
-        $queryBuilder->groupBy("$rootAlias.id");
 
         $queryBuilder->addOrderBy("$rootAlias.datetime", 'DESC');
     }

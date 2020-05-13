@@ -21,6 +21,7 @@ use Ramsey\Uuid\UuidInterface;
  */
 class Event
 {
+    public const TYPE_MESSAGE = "message";
     /**
      * @ORM\Id()
      * @ORM\Column(type="uuid", unique=true)
@@ -37,7 +38,7 @@ class Event
     public string $userIdentifier;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime_immutable")
      * @Groups({"event:read"})
      */
     public \DateTimeImmutable $datetime;

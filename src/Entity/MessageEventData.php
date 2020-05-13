@@ -10,7 +10,7 @@ use Ramsey\Uuid\UuidInterface;
 /**
  * @ApiResource(
  *     collectionOperations={},
- *     itemOperations={}
+ *     itemOperations={"get"}
  * )
  * @ORM\Entity(repositoryClass="Productively\Api\Repository\MessageEventDataRepository")
  */

@@ -17,6 +17,16 @@ services:
         resource: '../src/*'
         exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
 
+    Productively\Api\DataPersister:
+        decorates: 'api_platform.doctrine.orm.data_persister'
+
+
+
+    Productively\Api\UserAccessQueryExtension:
+        tags:
+            - { name: api_platform.doctrine.orm.query_extension.collection }
+            - { name: api_platform.doctrine.orm.query_extension.item }
+
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
     Productively\Api\Controller\:

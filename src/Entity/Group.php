@@ -43,20 +43,20 @@ class Group
      * @ORM\Column(type="boolean")
      * @Groups({"group:read", "group:write"})
      */
-    public bool $discoverable;
+    public bool $discoverable = false;
 
     /**
      * @ORM\Column(type="boolean")
      * @Groups({"group:read", "group:write"})
      */
-    public bool $private;
+    public bool $private = true;
 
     /**
      * @ORM\ManyToOne(targetEntity="Productively\Api\Entity\Group", inversedBy="subGroups")
      * @Groups({"group:read", "group:write"})
      * @ApiFilter(SearchFilter::class, properties={"owner.id": "exact"})
      */
-    private $owner;
+    private ?Group $owner = null;
 
     /**
      * @ORM\OneToMany(targetEntity="Productively\Api\Entity\Group", mappedBy="owner")

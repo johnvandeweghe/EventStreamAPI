@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20200511070613 extends AbstractMigration
+final class Version20200513023219 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -33,8 +33,10 @@ final class Version20200511070613 extends AbstractMigration
         $this->addSql('COMMENT ON COLUMN event.id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN event.event_group_id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN event.message_event_data_id IS \'(DC2Type:uuid)\'');
-        $this->addSql('CREATE TABLE group_member (id UUID NOT NULL, user_group_id UUID NOT NULL, user_identifer VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('COMMENT ON COLUMN event.datetime IS \'(DC2Type:datetime_immutable)\'');
+        $this->addSql('CREATE TABLE group_member (id UUID NOT NULL, user_group_id UUID NOT NULL, user_identifier VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_A36222A81ED93D47 ON group_member (user_group_id)');
+        $this->addSql('CREATE UNIQUE INDEX uq_groupmembership ON group_member (user_identifier, user_group_id)');
         $this->addSql('COMMENT ON COLUMN group_member.id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN group_member.user_group_id IS \'(DC2Type:uuid)\'');
         $this->addSql('CREATE TABLE "group" (id UUID NOT NULL, owner_id UUID DEFAULT NULL, name VARCHAR(255) DEFAULT NULL, discoverable BOOLEAN NOT NULL, private BOOLEAN NOT NULL, PRIMARY KEY(id))');
@@ -55,7 +57,6 @@ final class Version20200511070613 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on \'postgresql\'.');
 
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE subscription DROP CONSTRAINT FK_A3C664D3B5248F1F');
         $this->addSql('ALTER TABLE event DROP CONSTRAINT FK_3BAE0AA7B8B83097');
         $this->addSql('ALTER TABLE group_member DROP CONSTRAINT FK_A36222A81ED93D47');
