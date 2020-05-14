@@ -78,9 +78,9 @@ class GroupMember
     /**
      * @return Collection|Subscription[]
      */
-    public function getSubscriptions(): Collection
+    public function getSubscriptions()
     {
-        return $this->subscriptions;
+        return $this->subscriptions->getValues();
     }
 
     public function addSubscription(Subscription $subscription): self

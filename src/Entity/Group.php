@@ -99,11 +99,11 @@ class Group
     }
 
     /**
-     * @return Collection|self[]
+     * @return self[]
      */
-    public function getSubGroups(): Collection
+    public function getSubGroups()
     {
-        return $this->subGroups;
+        return $this->subGroups->getValues();
     }
 
     public function addSubGroup(self $subGroup): self
@@ -130,11 +130,11 @@ class Group
     }
 
     /**
-     * @return Collection|GroupMember[]
+     * @return GroupMember[]
      */
-    public function getGroupMembers(): Collection
+    public function getGroupMembers()
     {
-        return $this->groupMembers;
+        return $this->groupMembers->getValues();
     }
 
     public function addGroupMember(GroupMember $groupMember): self
@@ -165,7 +165,7 @@ class Group
      */
     public function getEvents(): Collection
     {
-        return $this->events;
+        return $this->events->getValues();
     }
 
     public function addEvent(Event $event): self

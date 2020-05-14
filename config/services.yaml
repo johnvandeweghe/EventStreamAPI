@@ -20,7 +20,8 @@ services:
     Productively\Api\DataPersister:
         decorates: 'api_platform.doctrine.orm.data_persister'
 
-
+    Pusher\Pusher:
+        alias: "lopi_pusher.pusher"
 
     Productively\Api\UserAccessQueryExtension:
         tags:

@@ -1,21 +1,25 @@
 <?php
 namespace Productively\Api;
 
+use ApiPlatform\Core\Bridge\Symfony\Messenger\RemoveStamp;
 use ApiPlatform\Core\DataPersister\DataPersisterInterface;
 use ApiPlatform\Core\DataPersister\ContextAwareDataPersisterInterface;
 use Productively\Api\Entity\Event;
 use Productively\Api\Entity\GroupMember;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Core\Security;
 
 final class DataPersister implements ContextAwareDataPersisterInterface
 {
     private DataPersisterInterface $decorated;
     private Security $security;
+    private MessageBusInterface $messageBus;
 
-    public function __construct(DataPersisterInterface $decorated, Security $security)
+    public function __construct(DataPersisterInterface $decorated, Security $security, MessageBusInterface $messageBus)
     {
         $this->decorated = $decorated;
         $this->security = $security;
+        $this->messageBus = $messageBus;
     }
 
     public function supports($data, array $context = []): bool
@@ -33,11 +37,19 @@ final class DataPersister implements ContextAwareDataPersisterInterface
             $data->userIdentifier = $user->getUsername();
         }
 
-        return $this->decorated->persist($data, $context);
+        $result = $this->decorated->persist($data, $context);
+
+        $this->messageBus->dispatch($data);
+
+        return $result;
     }
 
     public function remove($data, array $context = [])
     {
-        return $this->decorated->remove($data, $context);
+        $result = $this->decorated->remove($data, $context);
+
+        $this->messageBus->dispatch($data, [new RemoveStamp()]);
+
+        return $result;
     }
 }
