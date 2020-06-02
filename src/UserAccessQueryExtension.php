@@ -28,16 +28,16 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
 
     public function applyToCollection(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, string $operationName = null)
     {
-        $this->modifyQuery($queryBuilder, $resourceClass);
+        $this->modifyQuery($queryBuilder, $resourceClass, true);
     }
 
     public function applyToItem(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, array $identifiers, string $operationName = null, array $context = [])
     {
-        $this->modifyQuery($queryBuilder, $resourceClass);
+        $this->modifyQuery($queryBuilder, $resourceClass, false);
     }
 
 
-    private function modifyQuery(QueryBuilder $queryBuilder, string $resourceClass): void
+    private function modifyQuery(QueryBuilder $queryBuilder, string $resourceClass, bool $isCollection): void
     {
         if (
             null === $user = $this->security->getUser()
@@ -47,7 +47,7 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
 
         switch($resourceClass) {
             case Group::class:
-                $this->applyUserFilterToQueryBuilderForGroup($queryBuilder, $user);
+                $this->applyUserFilterToQueryBuilderForGroup($queryBuilder, $user, $isCollection);
                 break;
             case GroupMember::class:
                 $this->applyUserFilterToQueryBuilderForGroupMember($queryBuilder, $user);
@@ -66,9 +66,13 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
      * Users can access groups they are members of, and discoverable children of those groups.
      * @param QueryBuilder $queryBuilder
      * @param UserInterface $user
+     * @param bool $isCollection
      */
-    private function applyUserFilterToQueryBuilderForGroup(QueryBuilder $queryBuilder, UserInterface $user): void
-    {
+    private function applyUserFilterToQueryBuilderForGroup(
+        QueryBuilder $queryBuilder,
+        UserInterface $user,
+        bool $isCollection
+    ): void {
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
         $queryBuilder->leftJoin("$rootAlias.owner", 'og');
@@ -77,7 +81,10 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
         //Order of joins here matters, when this was first the ogm was broken by the gm part being replaced incorrectly.
         $queryBuilder->leftJoin("$rootAlias.groupMembers", 'gm');
 
-        $queryBuilder->andWhere("gm.userIdentifier = :userId OR (og is not null and ogm.userIdentifier = :userId)");
+        $queryBuilder->andWhere(
+            "gm.userIdentifier = :userId OR (og is not null and ogm.userIdentifier = :userId)" .
+            (!$isCollection ? " OR $rootAlias.owner IS NULL" : "")
+        );
         $queryBuilder->setParameter('userId', $user->getUsername());
 
         //TODO: Grant access to more than one layer of children
@@ -89,8 +96,10 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
      * @param QueryBuilder $queryBuilder
      * @param UserInterface $user
      */
-    private function applyUserFilterToQueryBuilderForGroupMember(QueryBuilder $queryBuilder, UserInterface $user): void
-    {
+    private function applyUserFilterToQueryBuilderForGroupMember(
+        QueryBuilder $queryBuilder,
+        UserInterface $user
+    ): void {
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
         $queryBuilder->innerJoin("$rootAlias.userGroup", 'ug');

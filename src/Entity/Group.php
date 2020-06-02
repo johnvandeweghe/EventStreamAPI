@@ -29,7 +29,7 @@ class Group
      * @ORM\Column(type="uuid", unique=true)
      * @ORM\GeneratedValue(strategy="CUSTOM")
      * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
-     * @Groups({"group:read", "event:read", "event:write", "group-member:read", "group-member:write"})
+     * @Groups({"group:read", "group:write", "event:read", "event:write", "group-member:read", "group-member:write"})
      */
     protected UuidInterface $id;
 
@@ -56,7 +56,7 @@ class Group
      * @Groups({"group:read", "group:write"})
      * @ApiFilter(SearchFilter::class, properties={"owner.id": "exact"})
      */
-    private ?Group $owner = null;
+    protected ?Group $owner = null;
 
     /**
      * @ORM\OneToMany(targetEntity="Productively\Api\Entity\Group", mappedBy="owner")

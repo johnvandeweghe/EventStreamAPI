@@ -37,7 +37,12 @@ final class DataPersister implements ContextAwareDataPersisterInterface
             $data->userIdentifier = $user->getUsername();
         }
 
-        $result = $this->decorated->persist($data, $context);
+        $isEphemeralEvent = $data instanceof Event && $data->isEphemeral();
+        if(!$isEphemeralEvent) {
+            $result = $this->decorated->persist($data, $context);
+        } else {
+            $result = $data;
+        }
 
         $this->messageBus->dispatch($data);
 

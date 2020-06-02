@@ -22,6 +22,7 @@ use Ramsey\Uuid\UuidInterface;
 class Event
 {
     public const TYPE_MESSAGE = "message";
+    public const EPHEMERAL_TYPES = ["typing-start"];
     /**
      * @ORM\Id()
      * @ORM\Column(type="uuid", unique=true)
@@ -90,5 +91,10 @@ class Event
         $this->messageEventData = $messageEventData;
 
         return $this;
+    }
+
+    public function isEphemeral(): bool
+    {
+        return in_array($this->type, self::EPHEMERAL_TYPES);
     }
 }

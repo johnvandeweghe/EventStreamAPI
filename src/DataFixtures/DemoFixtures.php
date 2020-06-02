@@ -14,6 +14,7 @@ class DemoFixtures extends Fixture
 {
     public function load(ObjectManager $manager)
     {
+        //TODO add another root group to test joining and to see that it is hidden in a group lookup
         $group = new Group();
         $group->name = "Demo Server";
 
