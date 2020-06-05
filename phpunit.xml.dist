@@ -6,6 +6,7 @@
          backupGlobals="false"
          colors="true"
          bootstrap="tests/bootstrap.php"
+         defaultTestSuite="Unit test suite"
 >
     <php>
         <ini name="error_reporting" value="-1" />
@@ -16,8 +17,11 @@
     </php>
 
     <testsuites>
-        <testsuite name="Project Test Suite">
+        <testsuite name="Unit test suite">
             <directory>tests</directory>
+        </testsuite>
+        <testsuite name="Integration Test Suite">
+            <directory>itests</directory>
         </testsuite>
     </testsuites>
 

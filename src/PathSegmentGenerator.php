@@ -3,14 +3,23 @@
 namespace Productively\Api;
 
 use ApiPlatform\Core\Operation\PathSegmentNameGeneratorInterface;
-
-use Doctrine\Common\Inflector\Inflector;
+use Doctrine\Inflector\Inflector;
 
 /**
  * A path segment generator that produces camelCase resource names.
  */
 final class PathSegmentGenerator implements PathSegmentNameGeneratorInterface
 {
+    /**
+     * @var Inflector
+     */
+    private Inflector $inflector;
+
+    public function __construct(Inflector $inflector)
+    {
+        $this->inflector = $inflector;
+    }
+
     /**
      * Transforms a given string to a valid path name which can be pluralized (eg. for collections).
      *
@@ -20,6 +29,6 @@ final class PathSegmentGenerator implements PathSegmentNameGeneratorInterface
      */
     public function getSegmentName(string $name, bool $collection = true): string
     {
-        return $collection ? lcfirst(Inflector::pluralize($name)) : lcfirst($name);
+        return $collection ? lcfirst($this->inflector->pluralize($name)) : lcfirst($name);
     }
 }

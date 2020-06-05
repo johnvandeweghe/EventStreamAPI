@@ -1,10 +1,5 @@
 security:
-    encoders:
-        Symfony\Component\Security\Core\User\User: 'auto'
-
-    providers:
-        app_user_provider:
-            id: jwt_auth.security.user.jwt_user_provider
+    enable_authenticator_manager: true
 
     firewalls:
         dev:
@@ -13,13 +8,10 @@ security:
         main:
             pattern: ^/api
             stateless: true
-            anonymous: lazy
-            provider: app_user_provider
-            guard:
-                authenticators:
-                    - jwt_auth.security.guard.jwt_guard_authenticator
+            custom_authenticators:
+                - Productively\Api\Security\GuardAuthenticator
 
     access_control:
-        - { path: ^/api/docs.json, roles: IS_AUTHENTICATED_ANONYMOUSLY } #temp
-        - { path: ^/api, roles: IS_AUTHENTICATED_ANONYMOUSLY } #temp
-        - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/docs.json, roles: PUBLIC_ACCESS } #temp
+        - { path: ^/api/, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api, roles: PUBLIC_ACCESS } #temp

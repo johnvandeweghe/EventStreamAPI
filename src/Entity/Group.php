@@ -11,6 +11,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Ramsey\Uuid\UuidInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
@@ -30,6 +31,7 @@ class Group
      * @ORM\GeneratedValue(strategy="CUSTOM")
      * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
      * @Groups({"group:read", "group:write", "event:read", "event:write", "group-member:read", "group-member:write"})
+     * @Assert\Uuid
      */
     protected UuidInterface $id;
 
@@ -151,10 +153,6 @@ class Group
     {
         if ($this->groupMembers->contains($groupMember)) {
             $this->groupMembers->removeElement($groupMember);
-            // set the owning side to null (unless already changed)
-            if ($groupMember->getUserGroup() === $this) {
-                $groupMember->setUserGroup(null);
-            }
         }
 
         return $this;
@@ -182,10 +180,6 @@ class Group
     {
         if ($this->events->contains($event)) {
             $this->events->removeElement($event);
-            // set the owning side to null (unless already changed)
-            if ($event->getEventGroup() === $this) {
-                $event->setEventGroup(null);
-            }
         }
 
         return $this;

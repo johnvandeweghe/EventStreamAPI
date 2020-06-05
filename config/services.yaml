@@ -17,22 +17,50 @@ services:
         resource: '../src/*'
         exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
 
+    Productively\Api\Controller\:
+        resource: '../src/Controller'
+        tags: ['controller.service_arguments']
+
     Productively\Api\DataPersister:
         decorates: 'api_platform.doctrine.orm.data_persister'
-
-    Pusher\Pusher:
-        alias: "lopi_pusher.pusher"
 
     Productively\Api\UserAccessQueryExtension:
         tags:
             - { name: api_platform.doctrine.orm.query_extension.collection }
             - { name: api_platform.doctrine.orm.query_extension.item }
 
-    # controllers are imported separately to make sure services can be injected
-    # as action arguments even if you don't extend any base controller class
-    Productively\Api\Controller\:
-        resource: '../src/Controller'
-        tags: ['controller.service_arguments']
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    Pusher\Pusher:
+        alias: "lopi_pusher.pusher"
+
+
+    doctrine.inflector.factory:
+        class: '\Doctrine\Inflector\LanguageInflectorFactory'
+        factory: ['Doctrine\Inflector\InflectorFactory', 'create']
+
+
+    Doctrine\Inflector\Inflector:
+        factory: ['@doctrine.inflector.factory', 'build']
+
+
+    Symfony\Component\Cache\Psr16Cache:
+        arguments:
+            $pool: '@cache.app'
+
+    Auth0\SDK\Helpers\JWKFetcher:
+        arguments:
+            $cache: '@Symfony\Component\Cache\Psr16Cache'
+            $guzzleOptions:
+                base_uri: "https://%env(AUTH0_DOMAIN)%/.well-known/jwks.json"
+
+    Auth0\SDK\Helpers\Tokens\AsymmetricVerifier:
+        arguments:
+            $jwks: '@Auth0\SDK\Helpers\JWKFetcher'
+
+    Auth0\SDK\Helpers\Tokens\SignatureVerifier:
+        alias: 'Auth0\SDK\Helpers\Tokens\AsymmetricVerifier'
+
+    Auth0\SDK\Helpers\Tokens\TokenVerifier:
+        arguments:
+            $issuer: "https://%env(AUTH0_DOMAIN)%/"
+            $audience: "%env(AUTH0_AUDIENCE)%"

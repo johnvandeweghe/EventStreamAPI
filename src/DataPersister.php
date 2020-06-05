@@ -6,6 +6,7 @@ use ApiPlatform\Core\DataPersister\DataPersisterInterface;
 use ApiPlatform\Core\DataPersister\ContextAwareDataPersisterInterface;
 use Productively\Api\Entity\Event;
 use Productively\Api\Entity\GroupMember;
+use Productively\Api\Entity\User;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Core\Security;
 
@@ -29,12 +30,26 @@ final class DataPersister implements ContextAwareDataPersisterInterface
 
     public function persist($data, array $context = [])
     {
-        if ($data instanceof Event && ($user = $this->security->getUser())) {
-            $data->userIdentifier = $user->getUsername();
+        /**
+         * @var $user User
+         */
+        $user = $this->security->getUser();
+        if(!$user) {
+            return $data;
+        }
+
+
+        if($data instanceof User && $data->getUsername() !== $user->getUsername()) {
+            return $data;
+        }
+
+        if ($data instanceof Event) {
+            $data->setUser($user);
             $data->datetime = new \DateTimeImmutable();
         }
-        if ($data instanceof GroupMember && ($user = $this->security->getUser())) {
-            $data->userIdentifier = $user->getUsername();
+
+        if ($data instanceof GroupMember) {
+            $data->setUser($user);
         }
 
         $isEphemeralEvent = $data instanceof Event && $data->isEphemeral();

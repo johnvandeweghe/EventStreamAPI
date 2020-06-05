@@ -11,6 +11,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Ramsey\Uuid\UuidInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
@@ -20,7 +21,7 @@ use Ramsey\Uuid\UuidInterface;
  *     denormalizationContext={"groups"={"group-member:write"}}
  * )
  * @ORM\Entity(repositoryClass="Productively\Api\Repository\GroupMemberRepository")
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uq_groupmembership", columns={"user_identifier", "user_group_id"})})
+ * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uq_groupmembership", columns={"user_id", "user_group_id"})})
  */
 class GroupMember
 {
@@ -30,15 +31,17 @@ class GroupMember
      * @ORM\GeneratedValue(strategy="CUSTOM")
      * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
      * @Groups({"group-member:read", "subscription:read", "subscription:write"})
+     * @Assert\Uuid
      */
     protected UuidInterface $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"group-member:read", "group-member:write"})
-     * @ApiFilter(SearchFilter::class, strategy="exact")
+     * @ORM\ManyToOne(targetEntity="Productively\Api\Entity\User", inversedBy="groupMembers")
+     * @ORM\JoinColumn(nullable=false)
+     * @Groups({"group-member:read"})
+     * @ApiFilter(SearchFilter::class, properties={"user.id": "exact"})
      */
-    public string $userIdentifier;
+    protected User $user;
 
     /**
      * @ORM\ManyToOne(targetEntity="Productively\Api\Entity\Group", inversedBy="groupMembers")
@@ -63,16 +66,24 @@ class GroupMember
         return $this->id;
     }
 
-    public function getUserGroup(): ?Group
+    public function getUserGroup(): Group
     {
         return $this->userGroup;
     }
 
-    public function setUserGroup(?Group $userGroup): self
+    public function setUserGroup(Group $userGroup): void
     {
         $this->userGroup = $userGroup;
+    }
 
-        return $this;
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+
+    public function setUser(User $user): void
+    {
+        $this->user = $user;
     }
 
     /**

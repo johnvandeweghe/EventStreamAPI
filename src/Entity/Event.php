@@ -4,39 +4,48 @@ namespace Productively\Api\Entity;
 
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Ramsey\Uuid\UuidInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
  *     collectionOperations={"get","post"},
  *     itemOperations={"get"},
  *     normalizationContext={"groups"={"event:read"}},
- *     denormalizationContext={"groups"={"event:write"}}
+ *     denormalizationContext={"groups"={"event:write"}},
+ *     attributes={"order"={"datetime": "ASC"},"validation_groups"={Event::class, "validationGroups"}}
  * )
  * @ORM\Entity(repositoryClass="Productively\Api\Repository\EventRepository")
  * @ORM\Table(indexes={@ORM\Index(name="group_datetime", columns={"event_group_id", "datetime"})})
  */
 class Event
 {
-    public const TYPE_MESSAGE = "message";
-    public const EPHEMERAL_TYPES = ["typing-start"];
+    public const TYPE_MESSAGE       = "message";
+    public const TYPE_TYPING_START  = "typing-start";
+    public const TYPE_TYPING_STOP   = "typing-stop";
+    public const TYPE_GROUP_JOINED  = "joined";
+    public const TYPE_GROUP_LEFT    = "left";
+    public const EPHEMERAL_TYPES = [self::TYPE_TYPING_START, self::TYPE_TYPING_STOP];
+    public const TYPES = [
+        self::TYPE_MESSAGE,
+        self::TYPE_TYPING_START,
+        self::TYPE_TYPING_STOP,
+        self::TYPE_GROUP_JOINED,
+        self::TYPE_GROUP_LEFT
+    ];
     /**
      * @ORM\Id()
      * @ORM\Column(type="uuid", unique=true)
      * @ORM\GeneratedValue(strategy="CUSTOM")
      * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
      * @Groups({"event:read"})
+     * @Assert\Uuid(groups={"Default", "message_event"})
      */
     protected UuidInterface $id;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"event:read"})
-     */
-    public string $userIdentifier;
 
     /**
      * @ORM\Column(type="datetime_immutable")
@@ -47,8 +56,26 @@ class Event
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"event:read", "event:write"})
+     * @Assert\Choice(choices=Event::TYPES)
+     * @Assert\NotBlank(groups={"Default", "message_event"})
+     * @ApiProperty(
+     *     attributes={
+     *         "openapi_context"={
+     *             "type"="string",
+     *             "enum"=Event::TYPES,
+     *             "example"=EVENT::TYPE_MESSAGE
+     *         }
+     *     }
+     * )
      */
     public string $type;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Productively\Api\Entity\User", inversedBy="events")
+     * @ORM\JoinColumn(nullable=false)
+     * @Groups({"event:read"})
+     */
+    protected User $user;
 
     /**
      * @ORM\ManyToOne(targetEntity="Productively\Api\Entity\Group", inversedBy="events")
@@ -61,8 +88,18 @@ class Event
     /**
      * @ORM\OneToOne(targetEntity="Productively\Api\Entity\MessageEventData", cascade={"persist", "remove"})
      * @Groups({"event:read", "event:write"})
+     * @Assert\NotBlank(groups={"message_event"})
+     * @Assert\IsNull()
      */
     protected ?MessageEventData $messageEventData;
+
+    public static function validationGroups(self $event): array
+    {
+        if($event->type === self::TYPE_MESSAGE) {
+            return ["message_event"];
+        }
+        return ["Default"];
+    }
 
     public function getId(): UuidInterface
     {
@@ -74,11 +111,19 @@ class Event
         return $this->eventGroup;
     }
 
-    public function setEventGroup(Group $eventGroup): self
+    public function setEventGroup(Group $eventGroup): void
     {
         $this->eventGroup = $eventGroup;
+    }
 
-        return $this;
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+
+    public function setUser(User $user): void
+    {
+        $this->user = $user;
     }
 
     public function getMessageEventData(): ?MessageEventData
