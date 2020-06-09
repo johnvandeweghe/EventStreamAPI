@@ -91,7 +91,7 @@ class Event
      * @Assert\NotBlank(groups={"message_event"})
      * @Assert\IsNull()
      */
-    protected ?MessageEventData $messageEventData;
+    protected ?MessageEventData $messageEventData = null;
 
     /**
      * @param Event $event
@@ -108,6 +108,15 @@ class Event
     public function getId(): UuidInterface
     {
         return $this->id;
+    }
+
+    /**
+     * For setting the id when the event is ephemeral. Unused otherwise.
+     * @param UuidInterface $uuid
+     */
+    public function setId(UuidInterface $uuid): void
+    {
+        $this->id = $uuid;
     }
 
     public function getEventGroup(): Group

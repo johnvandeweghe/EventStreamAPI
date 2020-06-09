@@ -7,6 +7,7 @@ use ApiPlatform\Core\DataPersister\ContextAwareDataPersisterInterface;
 use Productively\Api\Entity\Event;
 use Productively\Api\Entity\GroupMember;
 use Productively\Api\Entity\User;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Core\Security;
 
@@ -52,6 +53,7 @@ final class DataPersister implements ContextAwareDataPersisterInterface
             $result = $this->decorated->persist($data, $context);
         } else {
             $result = $data;
+            $result->setId(Uuid::uuid4());
         }
 
         $this->messageBus->dispatch($result);
