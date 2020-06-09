@@ -30,6 +30,7 @@ class GroupMemberHandler implements MessageHandlerInterface
         $event = new Event();
         $event->setUser($member->getUser());
         $event->setEventGroup($member->getUserGroup());
+        $event->datetime = new \DateTimeImmutable();
         $event->type = $deleted ? Event::TYPE_GROUP_LEFT : Event::TYPE_GROUP_JOINED;
 
         $manager->persist($event);

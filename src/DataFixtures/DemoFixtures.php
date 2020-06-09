@@ -15,17 +15,18 @@ class DemoFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        //TODO add another root group to test joining and to see that it is hidden in a group lookup
         $group = new Group();
         $group->name = "Demo Server";
 
         $generalChannel = new Group();
         $generalChannel->setOwner($group);
         $generalChannel->name = "General";
+        $generalChannel->discoverable = true;
 
         $secretChannel = new Group();
         $secretChannel->setOwner($group);
         $secretChannel->name = "Not General";
+        $secretChannel->discoverable = false;
 
         $userA = new User("auth0|5eb51dd31cc1ac0c1493050e");
         $userB = new User("mock|fakeIdentifier");

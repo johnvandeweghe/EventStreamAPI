@@ -48,13 +48,12 @@ class Group
      * @ORM\Column(type="boolean")
      * @Groups({"group:read", "group:write"})
      */
-    public bool $discoverable = false;
+    public bool $discoverable = true;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"group:read", "group:write"})
      */
-    public bool $private = true;
+    public bool $private = false;
 
     /**
      * @ORM\ManyToOne(targetEntity=Group::class, inversedBy="subGroups")
