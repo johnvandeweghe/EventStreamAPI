@@ -14,9 +14,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ApiResource(
  *     collectionOperations={"get"},
- *     itemOperations={"get"},
- *     normalizationContext={"groups"={"user:read"}},
- *     denormalizationContext={"groups"={"user:write"}}
+ *     itemOperations={"get", "patch"={"security"="object.user == user"}},
+ *     normalizationContext={
+ *         "groups"={"user:read"},
+ *         "skip_null_values" = false
+ *     },
+ *     denormalizationContext={"groups"={"user:write"}},
+ *     attributes={}
  * )
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @ORM\Table(name="`user`")
@@ -56,12 +60,12 @@ class User implements UserInterface
     public ?string $nickname;
 
     /**
-     * @ORM\OneToMany(targetEntity="Productively\Api\Entity\GroupMember", mappedBy="user", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=GroupMember::class, mappedBy="user", orphanRemoval=true)
      */
     private $groupMembers;
 
     /**
-     * @ORM\OneToMany(targetEntity="Productively\Api\Entity\Event", mappedBy="user", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Event::class, mappedBy="user", orphanRemoval=true)
      */
     private $events;
 
@@ -85,23 +89,19 @@ class User implements UserInterface
         return $this->groupMembers->getValues();
     }
 
-    public function addGroupMember(GroupMember $groupMember): self
+    public function addGroupMember(GroupMember $groupMember): void
     {
         if (!$this->groupMembers->contains($groupMember)) {
             $this->groupMembers[] = $groupMember;
             $groupMember->setUser($this);
         }
-
-        return $this;
     }
 
-    public function removeGroupMember(GroupMember $groupMember): self
+    public function removeGroupMember(GroupMember $groupMember): void
     {
         if ($this->groupMembers->contains($groupMember)) {
             $this->groupMembers->removeElement($groupMember);
         }
-
-        return $this;
     }
 
     /**
@@ -112,23 +112,19 @@ class User implements UserInterface
         return $this->events->getValues();
     }
 
-    public function addEvent(Event $event): self
+    public function addEvent(Event $event): void
     {
         if (!$this->events->contains($event)) {
             $this->events[] = $event;
             $event->setUser($this);
         }
-
-        return $this;
     }
 
-    public function removeEvent(Event $event): self
+    public function removeEvent(Event $event): void
     {
         if ($this->events->contains($event)) {
             $this->events->removeElement($event);
         }
-
-        return $this;
     }
 
     public function getRoles(): array

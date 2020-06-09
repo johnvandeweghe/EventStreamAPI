@@ -17,7 +17,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ApiResource(
  *     collectionOperations={"get","post"},
  *     itemOperations={"get"},
- *     normalizationContext={"groups"={"group:read"}},
+ *     normalizationContext={
+ *         "groups"={"group:read"},
+ *         "skip_null_values" = false,
+ *     },
  *     denormalizationContext={"groups"={"group:write"}}
  * )
  * @ORM\Entity(repositoryClass="Productively\Api\Repository\GroupRepository")
@@ -54,26 +57,26 @@ class Group
     public bool $private = true;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Productively\Api\Entity\Group", inversedBy="subGroups")
+     * @ORM\ManyToOne(targetEntity=Group::class, inversedBy="subGroups")
      * @Groups({"group:read", "group:write"})
      * @ApiFilter(SearchFilter::class, properties={"owner.id": "exact"})
      */
     protected ?Group $owner = null;
 
     /**
-     * @ORM\OneToMany(targetEntity="Productively\Api\Entity\Group", mappedBy="owner")
+     * @ORM\OneToMany(targetEntity=Group::class, mappedBy="owner")
      * @ApiSubresource(maxDepth=1)
      */
     private $subGroups;
 
     /**
-     * @ORM\OneToMany(targetEntity="Productively\Api\Entity\GroupMember", mappedBy="userGroup", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=GroupMember::class, mappedBy="userGroup", orphanRemoval=true)
      * @ApiSubresource(maxDepth=1)
      */
     private $groupMembers;
 
     /**
-     * @ORM\OneToMany(targetEntity="Productively\Api\Entity\Event", mappedBy="eventGroup", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Event::class, mappedBy="eventGroup", orphanRemoval=true)
      * @ApiSubresource()
      */
     private $events;
@@ -108,17 +111,15 @@ class Group
         return $this->subGroups->getValues();
     }
 
-    public function addSubGroup(self $subGroup): self
+    public function addSubGroup(self $subGroup): void
     {
         if (!$this->subGroups->contains($subGroup)) {
             $this->subGroups[] = $subGroup;
             $subGroup->setOwner($this);
         }
-
-        return $this;
     }
 
-    public function removeSubGroup(self $subGroup): self
+    public function removeSubGroup(self $subGroup): void
     {
         if ($this->subGroups->contains($subGroup)) {
             $this->subGroups->removeElement($subGroup);
@@ -127,8 +128,6 @@ class Group
                 $subGroup->setOwner(null);
             }
         }
-
-        return $this;
     }
 
     /**
@@ -139,23 +138,20 @@ class Group
         return $this->groupMembers->getValues();
     }
 
-    public function addGroupMember(GroupMember $groupMember): self
+    public function addGroupMember(GroupMember $groupMember): void
     {
         if (!$this->groupMembers->contains($groupMember)) {
             $this->groupMembers[] = $groupMember;
             $groupMember->setUserGroup($this);
         }
 
-        return $this;
     }
 
-    public function removeGroupMember(GroupMember $groupMember): self
+    public function removeGroupMember(GroupMember $groupMember): void
     {
         if ($this->groupMembers->contains($groupMember)) {
             $this->groupMembers->removeElement($groupMember);
         }
-
-        return $this;
     }
 
     /**
@@ -166,22 +162,18 @@ class Group
         return $this->events->getValues();
     }
 
-    public function addEvent(Event $event): self
+    public function addEvent(Event $event): void
     {
         if (!$this->events->contains($event)) {
             $this->events[] = $event;
             $event->setEventGroup($this);
         }
-
-        return $this;
     }
 
-    public function removeEvent(Event $event): self
+    public function removeEvent(Event $event): void
     {
         if ($this->events->contains($event)) {
             $this->events->removeElement($event);
         }
-
-        return $this;
     }
 }

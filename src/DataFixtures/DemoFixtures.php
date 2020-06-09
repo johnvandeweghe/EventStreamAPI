@@ -9,10 +9,11 @@ use Productively\Api\Entity\Group;
 use Productively\Api\Entity\GroupMember;
 use Productively\Api\Entity\MessageEventData;
 use Productively\Api\Entity\Subscription;
+use Productively\Api\Entity\User;
 
 class DemoFixtures extends Fixture
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         //TODO add another root group to test joining and to see that it is hidden in a group lookup
         $group = new Group();
@@ -26,15 +27,16 @@ class DemoFixtures extends Fixture
         $secretChannel->setOwner($group);
         $secretChannel->name = "Not General";
 
-        $userId = "auth0|5eb51dd31cc1ac0c1493050e";
+        $userA = new User("auth0|5eb51dd31cc1ac0c1493050e");
+        $userB = new User("mock|fakeIdentifier");
 
         $groupMember = new GroupMember();
         $groupMember->setUserGroup($group);
-        $groupMember->userIdentifier = $userId;
+        $groupMember->setUser($userA);
 
         $groupMember2 = new GroupMember();
         $groupMember2->setUserGroup($generalChannel);
-        $groupMember2->userIdentifier = $userId;
+        $groupMember2->setUser($userA);
 
         $sub = new Subscription();
         $sub->setGroupMember($groupMember2);
@@ -44,7 +46,7 @@ class DemoFixtures extends Fixture
         $event->datetime = new \DateTimeImmutable();
         $event->setEventGroup($generalChannel);
         $event->type = Event::TYPE_MESSAGE;
-        $event->userIdentifier = $userId;
+        $event->setUser($userA);
 
         $messageData = new MessageEventData();
         $messageData->text = "This is a test message";
@@ -54,12 +56,14 @@ class DemoFixtures extends Fixture
         $otherEvent->datetime = new \DateTimeImmutable();
         $otherEvent->setEventGroup($secretChannel);
         $otherEvent->type = Event::TYPE_MESSAGE;
-        $otherEvent->userIdentifier = "RADFNWOUIERFHBUIERFGH";
+        $otherEvent->setUser($userB);
 
-        $messageData = new MessageEventData();
-        $messageData->text = "This is a secret test message";
-        $otherEvent->setMessageEventData($messageData);
+        $messageData2 = new MessageEventData();
+        $messageData2->text = "This is a secret test message";
+        $otherEvent->setMessageEventData($messageData2);
 
+        $manager->persist($userA);
+        $manager->persist($userB);
         $manager->persist($group);
         $manager->persist($generalChannel);
         $manager->persist($secretChannel);

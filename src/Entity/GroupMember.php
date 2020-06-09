@@ -16,8 +16,15 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ApiResource(
  *     collectionOperations={"get","post"},
- *     itemOperations={"get", "delete"},
- *     normalizationContext={"groups"={"group-member:read"}},
+ *     itemOperations={
+ *         "get",
+ *         "patch"={"security"="object.user == user"},
+ *         "delete"={"security"="object.user == user"}
+ *     },
+ *     normalizationContext={
+ *         "groups"={"group-member:read"},
+ *         "skip_null_values" = false
+ *     },
  *     denormalizationContext={"groups"={"group-member:write"}}
  * )
  * @ORM\Entity(repositoryClass="Productively\Api\Repository\GroupMemberRepository")
@@ -36,7 +43,7 @@ class GroupMember
     protected UuidInterface $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Productively\Api\Entity\User", inversedBy="groupMembers")
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="groupMembers")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"group-member:read"})
      * @ApiFilter(SearchFilter::class, properties={"user.id": "exact"})
@@ -44,17 +51,23 @@ class GroupMember
     protected User $user;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Productively\Api\Entity\Group", inversedBy="groupMembers")
+     * @ORM\ManyToOne(targetEntity=Group::class, inversedBy="groupMembers")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"group-member:read", "group-member:write"})
      */
     protected $userGroup;
 
     /**
-     * @ORM\OneToMany(targetEntity="Productively\Api\Entity\Subscription", mappedBy="groupMember", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Subscription::class, mappedBy="groupMember", orphanRemoval=true)
      * @ApiSubresource()
      */
     protected $subscriptions;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Event::class)
+     * @Groups({"group-member:read", "group-member:write"})
+     */
+    protected $lastSeenEvent;
 
     public function __construct()
     {
@@ -94,17 +107,15 @@ class GroupMember
         return $this->subscriptions->getValues();
     }
 
-    public function addSubscription(Subscription $subscription): self
+    public function addSubscription(Subscription $subscription): void
     {
         if (!$this->subscriptions->contains($subscription)) {
             $this->subscriptions[] = $subscription;
             $subscription->setGroupMember($this);
         }
-
-        return $this;
     }
 
-    public function removeSubscription(Subscription $subscription): self
+    public function removeSubscription(Subscription $subscription): void
     {
         if ($this->subscriptions->contains($subscription)) {
             $this->subscriptions->removeElement($subscription);
@@ -113,7 +124,15 @@ class GroupMember
                 $subscription->setGroupMember(null);
             }
         }
+    }
 
-        return $this;
+    public function getLastSeenEvent(): ?Event
+    {
+        return $this->lastSeenEvent;
+    }
+
+    public function setLastSeenEvent(?Event $lastSeenEvent): void
+    {
+        $this->lastSeenEvent = $lastSeenEvent;
     }
 }

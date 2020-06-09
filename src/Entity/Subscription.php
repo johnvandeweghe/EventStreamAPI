@@ -36,7 +36,7 @@ class Subscription
     public string $transport;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Productively\Api\Entity\GroupMember", inversedBy="subscriptions")
+     * @ORM\ManyToOne(targetEntity=GroupMember::class, inversedBy="subscriptions")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"subscription:read", "subscription:write"})
      */
@@ -52,10 +52,8 @@ class Subscription
         return $this->groupMember;
     }
 
-    public function setGroupMember(GroupMember $groupMember): self
+    public function setGroupMember(GroupMember $groupMember): void
     {
         $this->groupMember = $groupMember;
-
-        return $this;
     }
 }

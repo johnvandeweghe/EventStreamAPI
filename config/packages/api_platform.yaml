@@ -1,9 +1,18 @@
 api_platform:
     version: 1.0.0
+    title: 'Productively API'
+    description: 'A general messaging API for Productively.'
     show_webby: false
     path_segment_name_generator: 'Productively\Api\PathSegmentGenerator'
     mapping:
         paths: ['%kernel.project_dir%/src/Entity']
+    formats:
+        json:
+            mime_types: ['application/json']
+        jsonld:
+            mime_types: ['application/ld+json']
+        html:
+            mime_types: ['text/html']
     patch_formats:
         json: ['application/merge-patch+json']
     swagger:

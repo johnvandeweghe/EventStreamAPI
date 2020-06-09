@@ -38,11 +38,6 @@ final class DataPersister implements ContextAwareDataPersisterInterface
             return $data;
         }
 
-
-        if($data instanceof User && $data->getUsername() !== $user->getUsername()) {
-            return $data;
-        }
-
         if ($data instanceof Event) {
             $data->setUser($user);
             $data->datetime = new \DateTimeImmutable();
@@ -59,7 +54,7 @@ final class DataPersister implements ContextAwareDataPersisterInterface
             $result = $data;
         }
 
-        $this->messageBus->dispatch($data);
+        $this->messageBus->dispatch($result);
 
         return $result;
     }
@@ -68,7 +63,7 @@ final class DataPersister implements ContextAwareDataPersisterInterface
     {
         $result = $this->decorated->remove($data, $context);
 
-        $this->messageBus->dispatch($data, [new RemoveStamp()]);
+        $this->messageBus->dispatch($result, [new RemoveStamp()]);
 
         return $result;
     }

@@ -42,7 +42,7 @@ class Event
      * @ORM\Column(type="uuid", unique=true)
      * @ORM\GeneratedValue(strategy="CUSTOM")
      * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
-     * @Groups({"event:read"})
+     * @Groups({"event:read", "group-member:read"})
      * @Assert\Uuid(groups={"Default", "message_event"})
      */
     protected UuidInterface $id;
@@ -71,14 +71,14 @@ class Event
     public string $type;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Productively\Api\Entity\User", inversedBy="events")
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="events")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"event:read"})
      */
     protected User $user;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Productively\Api\Entity\Group", inversedBy="events")
+     * @ORM\ManyToOne(targetEntity=Group::class, inversedBy="events")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"event:read", "event:write"})
      * @ApiFilter(SearchFilter::class, properties={"eventGroup.id": "exact"})
@@ -86,13 +86,17 @@ class Event
     protected Group $eventGroup;
 
     /**
-     * @ORM\OneToOne(targetEntity="Productively\Api\Entity\MessageEventData", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=MessageEventData::class, cascade={"persist", "remove"})
      * @Groups({"event:read", "event:write"})
      * @Assert\NotBlank(groups={"message_event"})
      * @Assert\IsNull()
      */
     protected ?MessageEventData $messageEventData;
 
+    /**
+     * @param Event $event
+     * @return string[]
+     */
     public static function validationGroups(self $event): array
     {
         if($event->type === self::TYPE_MESSAGE) {

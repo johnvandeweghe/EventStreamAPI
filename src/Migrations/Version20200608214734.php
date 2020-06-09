@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20200605050459 extends AbstractMigration
+final class Version20200608214734 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -35,12 +35,14 @@ final class Version20200605050459 extends AbstractMigration
         $this->addSql('COMMENT ON COLUMN event.event_group_id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN event.message_event_data_id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN event.datetime IS \'(DC2Type:datetime_immutable)\'');
-        $this->addSql('CREATE TABLE group_member (id UUID NOT NULL, user_id VARCHAR(255) NOT NULL, user_group_id UUID NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE group_member (id UUID NOT NULL, user_id VARCHAR(255) NOT NULL, user_group_id UUID NOT NULL, last_seen_event_id UUID DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_A36222A8A76ED395 ON group_member (user_id)');
         $this->addSql('CREATE INDEX IDX_A36222A81ED93D47 ON group_member (user_group_id)');
+        $this->addSql('CREATE INDEX IDX_A36222A8832799BB ON group_member (last_seen_event_id)');
         $this->addSql('CREATE UNIQUE INDEX uq_groupmembership ON group_member (user_id, user_group_id)');
         $this->addSql('COMMENT ON COLUMN group_member.id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN group_member.user_group_id IS \'(DC2Type:uuid)\'');
+        $this->addSql('COMMENT ON COLUMN group_member.last_seen_event_id IS \'(DC2Type:uuid)\'');
         $this->addSql('CREATE TABLE "user" (id VARCHAR(255) NOT NULL, name VARCHAR(255) DEFAULT NULL, email VARCHAR(255) DEFAULT NULL, picture VARCHAR(255) DEFAULT NULL, nickname VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE TABLE "group" (id UUID NOT NULL, owner_id UUID DEFAULT NULL, name VARCHAR(255) DEFAULT NULL, discoverable BOOLEAN NOT NULL, private BOOLEAN NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_6DC044C57E3C61F9 ON "group" (owner_id)');
@@ -54,6 +56,7 @@ final class Version20200605050459 extends AbstractMigration
         $this->addSql('ALTER TABLE event ADD CONSTRAINT FK_3BAE0AA7FB0F4EEB FOREIGN KEY (message_event_data_id) REFERENCES message_event_data (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE group_member ADD CONSTRAINT FK_A36222A8A76ED395 FOREIGN KEY (user_id) REFERENCES "user" (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE group_member ADD CONSTRAINT FK_A36222A81ED93D47 FOREIGN KEY (user_group_id) REFERENCES "group" (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE group_member ADD CONSTRAINT FK_A36222A8832799BB FOREIGN KEY (last_seen_event_id) REFERENCES event (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE "group" ADD CONSTRAINT FK_6DC044C57E3C61F9 FOREIGN KEY (owner_id) REFERENCES "group" (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
     }
 
@@ -62,6 +65,7 @@ final class Version20200605050459 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on \'postgresql\'.');
 
+        $this->addSql('ALTER TABLE group_member DROP CONSTRAINT FK_A36222A8832799BB');
         $this->addSql('ALTER TABLE subscription DROP CONSTRAINT FK_A3C664D3B5248F1F');
         $this->addSql('ALTER TABLE event DROP CONSTRAINT FK_3BAE0AA7A76ED395');
         $this->addSql('ALTER TABLE group_member DROP CONSTRAINT FK_A36222A8A76ED395');

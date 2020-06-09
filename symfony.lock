@@ -203,6 +203,9 @@
     "phpdocumentor/type-resolver": {
         "version": "1.1.0"
     },
+    "phpstan/phpstan": {
+        "version": "0.12.26"
+    },
     "psr/cache": {
         "version": "1.0.1"
     },
@@ -592,9 +595,6 @@
     },
     "webmozart/path-util": {
         "version": "2.3.0"
-    },
-    "webonyx/graphql-php": {
-        "version": "v0.13.8"
     },
     "willdurand/negotiation": {
         "version": "v2.3.1"
