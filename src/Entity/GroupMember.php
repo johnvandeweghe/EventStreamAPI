@@ -3,6 +3,7 @@
 namespace Productively\Api\Entity;
 
 use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -47,6 +48,7 @@ class GroupMember
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"group-member:read"})
      * @ApiFilter(SearchFilter::class, properties={"user.id": "exact"})
+     * @ApiProperty(push=true)
      */
     protected User $user;
 
