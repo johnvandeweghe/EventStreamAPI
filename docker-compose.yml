@@ -37,3 +37,10 @@ services:
         - .:/application
         - ./phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/7.4/fpm/conf.d/99-overrides.ini
 
+    pubsub-emulator:
+      image: google/cloud-sdk:latest
+      container_name: productively-pubsub
+      command: gcloud beta emulators pubsub start --project=wired-episode-279221 --host-port 0.0.0.0:8085
+      ports:
+        - "8085:8085"
+

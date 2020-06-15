@@ -4,6 +4,7 @@ namespace Productively\Api\DataFixtures;
 
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Interop\Queue\Context;
 use Productively\Api\Entity\Event;
 use Productively\Api\Entity\Group;
 use Productively\Api\Entity\GroupMember;
@@ -13,6 +14,13 @@ use Productively\Api\Entity\User;
 
 class DemoFixtures extends Fixture
 {
+    private Context $context;
+
+    public function __construct(Context $context)
+    {
+        $this->context = $context;
+    }
+
     public function load(ObjectManager $manager): void
     {
         $group = new Group();
@@ -41,7 +49,7 @@ class DemoFixtures extends Fixture
 
         $sub = new Subscription();
         $sub->setGroupMember($groupMember2);
-        $sub->transport = "webhook";
+        $sub->transport = "pusher";
 
         $event = new Event();
         $event->datetime = new \DateTimeImmutable();
@@ -75,5 +83,7 @@ class DemoFixtures extends Fixture
         $manager->persist($otherEvent);
 
         $manager->flush();
+
+        $this->context->declareTopic($this->context->createTopic("transport-pusher"));
     }
 }
