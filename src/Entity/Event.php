@@ -144,11 +144,9 @@ class Event
         return $this->messageEventData;
     }
 
-    public function setMessageEventData(?MessageEventData $messageEventData): self
+    public function setMessageEventData(?MessageEventData $messageEventData): void
     {
         $this->messageEventData = $messageEventData;
-
-        return $this;
     }
 
     public function isEphemeral(): bool

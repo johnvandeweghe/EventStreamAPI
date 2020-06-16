@@ -65,7 +65,7 @@ final class DataPersister implements ContextAwareDataPersisterInterface
     {
         $result = $this->decorated->remove($data, $context);
 
-        $this->messageBus->dispatch($result, [new RemoveStamp()]);
+        $this->messageBus->dispatch($data, [new RemoveStamp()]);
 
         return $result;
     }
