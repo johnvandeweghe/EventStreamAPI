@@ -45,6 +45,12 @@ class Group
     public string $name;
 
     /**
+     * @ORM\Column(type="string", length=512, nullable=true)
+     * @Groups({"group:read", "group:write"})
+     */
+    public string $description;
+
+    /**
      * @ORM\Column(type="boolean")
      * @Groups({"group:read", "group:write"})
      */
