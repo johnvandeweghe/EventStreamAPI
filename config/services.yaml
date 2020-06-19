@@ -30,12 +30,8 @@ services:
             - { name: api_platform.doctrine.orm.query_extension.item }
 
 
-    Pusher\Pusher:
-        alias: "lopi_pusher.pusher"
-
-
     doctrine.inflector.factory:
-        class: '\Doctrine\Inflector\LanguageInflectorFactory'
+        class: Doctrine\Inflector\LanguageInflectorFactory
         factory: ['Doctrine\Inflector\InflectorFactory', 'create']
 
 

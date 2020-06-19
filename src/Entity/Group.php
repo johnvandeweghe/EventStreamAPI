@@ -6,6 +6,7 @@ use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiSubresource;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\ExistsFilter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -65,6 +66,7 @@ class Group
      * @ORM\ManyToOne(targetEntity=Group::class, inversedBy="subGroups")
      * @Groups({"group:read", "group:write"})
      * @ApiFilter(SearchFilter::class, properties={"owner.id": "exact"})
+     * @ApiFilter(ExistsFilter::class)
      */
     protected ?Group $owner = null;
 
