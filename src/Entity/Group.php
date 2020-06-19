@@ -43,13 +43,13 @@ class Group
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Groups({"group:read", "group:write"})
      */
-    public string $name;
+    public ?string $name;
 
     /**
      * @ORM\Column(type="string", length=512, nullable=true)
      * @Groups({"group:read", "group:write"})
      */
-    public string $description;
+    public ?string $description;
 
     /**
      * @ORM\Column(type="boolean")
