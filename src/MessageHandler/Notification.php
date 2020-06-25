@@ -16,7 +16,7 @@ class Notification
     /**
      * Notification constructor.
      * @param Event $event
-     * @param array|Subscription[] $subscriptions
+     * @param Subscription[] $subscriptions
      */
     public function __construct(Event $event, $subscriptions)
     {

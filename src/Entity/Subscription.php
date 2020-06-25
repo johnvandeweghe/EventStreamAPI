@@ -58,6 +58,13 @@ class Subscription
     public string $transport;
 
     /**
+     * @ORM\Column(type="simple_array", nullable=true)
+     * @Groups({"subscription:read", "subscription:write"})
+     * @var array|null
+     */
+    public ?array $eventTypes;
+
+    /**
      * @ORM\ManyToOne(targetEntity=GroupMember::class, inversedBy="subscriptions")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"subscription:read", "subscription:write"})

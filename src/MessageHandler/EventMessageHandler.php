@@ -22,7 +22,11 @@ class EventMessageHandler implements MessageHandlerInterface
             array_merge([], ...array_map(static function(GroupMember $groupMember) {
                 return $groupMember->getSubscriptions();
             }, $event->getEventGroup()->getGroupMembers())),
-            static function($carry, Subscription $item) {
+            static function($carry, Subscription $item) use ($event) {
+                if($item->eventTypes && !in_array($event->type, $item->eventTypes, true)) {
+                    return $carry;
+                }
+
                 if (!isset($carry[$item->transport])) {
                     $carry[$item->transport] = [];
                 }

@@ -1,6 +1,7 @@
 <?php
 namespace Productively\Api\MessageHandler;
 
+use Productively\Api\Entity\Event;
 use Productively\Api\Entity\Group;
 use Productively\Api\Entity\GroupMember;
 use Productively\Api\Entity\User;
@@ -34,7 +35,7 @@ class GroupHandler implements MessageHandlerInterface
         /**
          * @var $user User
          */
-        if(!$manager || !($user = $this->security->getUser())){
+        if(!$manager || !($user = $this->security->getUser()) || $group->hasUser($user)){
             return;
         }
 
@@ -44,6 +45,16 @@ class GroupHandler implements MessageHandlerInterface
 
         $manager->persist($groupMember);
         $manager->persist($group);
+
+        //Alert the parent group that there is a new child to live update group lists
+        if($group->discoverable && ($owner = $group->getOwner())) {
+            $groupAddedEvent = Event::createEphemeralEvent();
+            $groupAddedEvent->setEventGroup($owner);
+            $groupAddedEvent->setUser($user);
+            $groupAddedEvent->type = Event::TYPE_CHILD_GROUP_CREATED;
+
+            $this->messageBus->dispatch($groupAddedEvent);
+        }
 
         $manager->flush();
         $manager->refresh($groupMember);

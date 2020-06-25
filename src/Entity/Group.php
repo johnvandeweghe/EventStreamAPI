@@ -42,6 +42,7 @@ class Group
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Groups({"group:read", "group:write"})
+     * @ApiFilter(ExistsFilter::class)
      */
     public ?string $name;
 
@@ -143,6 +144,11 @@ class Group
     public function getGroupMembers()
     {
         return $this->groupMembers->getValues();
+    }
+
+    public function hasUser(User $user): bool
+    {
+        return (bool)array_filter($this->getGroupMembers(), fn (GroupMember $groupMember) => $groupMember->getUser() === $user);
     }
 
     public function addGroupMember(GroupMember $groupMember): void

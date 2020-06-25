@@ -7,6 +7,7 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -24,25 +25,35 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Event
 {
-    public const TYPE_MESSAGE       = "message";
-    public const TYPE_TYPING_START  = "typing-start";
-    public const TYPE_TYPING_STOP   = "typing-stop";
-    public const TYPE_GROUP_JOINED  = "joined";
-    public const TYPE_GROUP_LEFT    = "left";
-    public const EPHEMERAL_TYPES = [self::TYPE_TYPING_START, self::TYPE_TYPING_STOP];
+    public const TYPE_MESSAGE               = "message";
+    public const TYPE_TYPING_START          = "typing-start";
+    public const TYPE_TYPING_STOP           = "typing-stop";
+    public const TYPE_CHILD_GROUP_CREATED   = "group-created";
+    public const TYPE_USER_JOINED           = "user-joined";
+    public const TYPE_USER_LEFT             = "user-left";
+    public const TYPE_USER_ADDED_TO_CHILD   = "user-added-to-child";
+
+    public const EPHEMERAL_TYPES = [
+        self::TYPE_TYPING_START,
+        self::TYPE_TYPING_STOP,
+        self::TYPE_CHILD_GROUP_CREATED,
+        self::TYPE_USER_ADDED_TO_CHILD
+    ];
+
     public const TYPES = [
         self::TYPE_MESSAGE,
         self::TYPE_TYPING_START,
         self::TYPE_TYPING_STOP,
-        self::TYPE_GROUP_JOINED,
-        self::TYPE_GROUP_LEFT
+        self::TYPE_USER_JOINED,
+        self::TYPE_USER_LEFT,
+        self::TYPE_USER_ADDED_TO_CHILD
     ];
     /**
      * @ORM\Id()
      * @ORM\Column(type="uuid", unique=true)
      * @ORM\GeneratedValue(strategy="CUSTOM")
      * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
-     * @Groups({"event:read", "group-member:read"})
+     * @Groups({"event:read", "group-member:read", "group-member:write"})
      * @Assert\Uuid(groups={"Default", "message_event"})
      */
     protected UuidInterface $id;
@@ -105,13 +116,27 @@ class Event
         return ["Default"];
     }
 
+    /**
+     * Creates an event that has private fields the ORM usually sets set to reasonable values for dispatch.
+     * Convenience function.
+     * @return static
+     */
+    public static function createEphemeralEvent(): self
+    {
+        $event = new self();
+        $event->setId(Uuid::uuid4());
+        $event->datetime = new \DateTimeImmutable();
+
+        return $event;
+    }
+
     public function getId(): UuidInterface
     {
         return $this->id;
     }
 
     /**
-     * For setting the id when the event is ephemeral. Unused otherwise.
+     * For setting/faking the id when the event is ephemeral. Unused otherwise.
      * @param UuidInterface $uuid
      */
     public function setId(UuidInterface $uuid): void

@@ -30,7 +30,7 @@ class User implements UserInterface
     /**
      * @ORM\Id()
      * @ORM\Column(type="string", unique=true)
-     * @Groups({"user:read", "user:write", "group-member:read", "event:read"})
+     * @Groups({"user:read", "user:write", "group-member:write", "group-member:read", "event:read"})
      * @Assert\Uuid
      */
     protected string $id;

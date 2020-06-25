@@ -10,6 +10,7 @@ use Productively\Api\Entity\Event;
 use Productively\Api\Entity\Group;
 use Productively\Api\Entity\GroupMember;
 use Productively\Api\Entity\Subscription;
+use Productively\Api\Entity\User;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -68,6 +69,9 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
             case Event::class:
                 $this->applyUserFilterToQueryBuilderForEvent($queryBuilder, $user);
                 break;
+            case User::class:
+                $this->applyUserFilterToQueryBuilderForUser($queryBuilder, $user);
+                break;
         }
     }
 
@@ -120,7 +124,6 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
 
 
         $queryBuilder->setParameter('userId', $user->getUsername());
-
     }
 
     /**
@@ -151,6 +154,26 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
         $queryBuilder->innerJoin("eg.groupMembers", 'gm');
         $queryBuilder->leftJoin("gm.user", 'gmu');
         $queryBuilder->andWhere("gmu.id = :userId");
+        $queryBuilder->setParameter('userId', $user->getUsername());
+    }
+
+    /**
+     * Limits group member queries to users in groups that the user is directly a member of.
+     * @param QueryBuilder $queryBuilder
+     * @param UserInterface $user
+     */
+    private function applyUserFilterToQueryBuilderForUser(
+        QueryBuilder $queryBuilder,
+        UserInterface $user
+    ): void {
+        $rootAlias = $queryBuilder->getRootAliases()[0];
+
+        $queryBuilder->innerJoin("$rootAlias.groupMembers", 'ugm');
+        $queryBuilder->innerJoin("ugm.userGroup", 'ug');
+        $queryBuilder->innerJoin("ug.groupMembers", 'gm');
+        $queryBuilder->innerJoin("gm.user", 'gmu', Expr\Join::WITH, "gmu.id = :userId");
+
+
         $queryBuilder->setParameter('userId', $user->getUsername());
     }
 }

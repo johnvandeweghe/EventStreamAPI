@@ -27,6 +27,7 @@
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.3",
+        "fzaninotto/faker": "^1.9",
         "infection/infection": "^0.16.3",
         "phpstan/phpstan": "^0.12.26",
         "roave/security-advisories": "dev-master",

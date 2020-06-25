@@ -156,6 +156,9 @@
     "firebase/php-jwt": {
         "version": "v5.2.0"
     },
+    "fzaninotto/faker": {
+        "version": "v1.9.1"
+    },
     "google/auth": {
         "version": "v1.9.0"
     },

@@ -44,10 +44,6 @@ final class DataPersister implements ContextAwareDataPersisterInterface
             $data->datetime = new \DateTimeImmutable();
         }
 
-        if ($data instanceof GroupMember) {
-            $data->setUser($user);
-        }
-
         $isEphemeralEvent = $data instanceof Event && $data->isEphemeral();
         if(!$isEphemeralEvent) {
             $result = $this->decorated->persist($data, $context);
