@@ -26,6 +26,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Event
 {
     public const TYPE_MESSAGE               = "message";
+    public const TYPE_COMMAND               = "command";
     public const TYPE_TYPING_START          = "typing-start";
     public const TYPE_TYPING_STOP           = "typing-stop";
     public const TYPE_CHILD_GROUP_CREATED   = "group-created";
@@ -42,12 +43,15 @@ class Event
 
     public const TYPES = [
         self::TYPE_MESSAGE,
+        self::TYPE_COMMAND,
         self::TYPE_TYPING_START,
         self::TYPE_TYPING_STOP,
+        self::TYPE_CHILD_GROUP_CREATED,
         self::TYPE_USER_JOINED,
         self::TYPE_USER_LEFT,
         self::TYPE_USER_ADDED_TO_CHILD
     ];
+
     /**
      * @ORM\Id()
      * @ORM\Column(type="uuid", unique=true)
@@ -100,9 +104,17 @@ class Event
      * @ORM\OneToOne(targetEntity=MessageEventData::class, cascade={"persist", "remove"})
      * @Groups({"event:read", "event:write"})
      * @Assert\NotBlank(groups={"message_event"})
-     * @Assert\IsNull()
+     * @Assert\IsNull(groups={"Default", "command_event"})
      */
     protected ?MessageEventData $messageEventData = null;
+
+    /**
+     * @ORM\OneToOne(targetEntity=CommandEventData::class, cascade={"persist", "remove"})
+     * @Groups({"event:read", "event:write"})
+     * @Assert\NotBlank(groups={"command_event"})
+     * @Assert\IsNull(groups={"Default", "message_event"})
+     */
+    protected ?CommandEventData $commandEventData = null;
 
     /**
      * @param Event $event
@@ -110,9 +122,14 @@ class Event
      */
     public static function validationGroups(self $event): array
     {
-        if($event->type === self::TYPE_MESSAGE) {
+        if ($event->type === self::TYPE_MESSAGE) {
             return ["message_event"];
         }
+
+        if($event->type === self::TYPE_COMMAND) {
+            return ["command_event"];
+        }
+
         return ["Default"];
     }
 
@@ -172,6 +189,16 @@ class Event
     public function setMessageEventData(?MessageEventData $messageEventData): void
     {
         $this->messageEventData = $messageEventData;
+    }
+
+    public function getCommandEventData(): ?CommandEventData
+    {
+        return $this->commandEventData;
+    }
+
+    public function setCommandEventData(?CommandEventData $commandEventData): void
+    {
+        $this->commandEventData = $commandEventData;
     }
 
     public function isEphemeral(): bool
