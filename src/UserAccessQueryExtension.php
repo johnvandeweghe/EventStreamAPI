@@ -168,10 +168,12 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
     ): void {
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
-        $queryBuilder->innerJoin("$rootAlias.groupMembers", 'ugm');
-        $queryBuilder->innerJoin("ugm.userGroup", 'ug');
-        $queryBuilder->innerJoin("ug.groupMembers", 'gm');
-        $queryBuilder->innerJoin("gm.user", 'gmu', Expr\Join::WITH, "gmu.id = :userId");
+        //TODO: this filters out a user if it's never joined a group, thereby making it impossible to join your first group...
+        $queryBuilder->leftJoin("$rootAlias.groupMembers", 'ugm');
+        $queryBuilder->leftJoin("ugm.userGroup", 'ug');
+        $queryBuilder->leftJoin("ug.groupMembers", 'gm');
+        $queryBuilder->leftJoin("gm.user", 'gmu');
+        $queryBuilder->andWhere("$rootAlias.id = :userId OR gmu.id = :userId");
 
 
         $queryBuilder->setParameter('userId', $user->getUsername());
