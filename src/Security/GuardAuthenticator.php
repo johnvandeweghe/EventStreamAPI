@@ -44,7 +44,7 @@ class GuardAuthenticator extends AbstractAuthenticator
         try {
             $validatedToken = $this->tokenVerifier->verify($token);
         } catch (InvalidTokenException $exception) {
-            throw new CustomUserMessageAuthenticationException("Unable to validate JWT.");
+            throw new CustomUserMessageAuthenticationException("Unable to validate JWT: " . $exception->getMessage(), $exception->getCode(), $exception);
         }
 
         $entityManager = $this->managerRegistry->getManagerForClass(User::class);
@@ -57,9 +57,9 @@ class GuardAuthenticator extends AbstractAuthenticator
 
         if(!$user) {
             $user = new User($validatedToken["sub"]);
+            $entityManager->persist($user);
         }
 
-        $entityManager->persist($user);
 
         $user->name = $validatedToken["name"] ?? null;
         $user->nickname = $validatedToken["nickname"] ?? null;
@@ -67,6 +67,7 @@ class GuardAuthenticator extends AbstractAuthenticator
         $user->email = $validatedToken["email"] ?? null;
 
         $entityManager->flush();
+        $entityManager->refresh($user);
 
         return new SelfValidatingPassport($user);
     }
