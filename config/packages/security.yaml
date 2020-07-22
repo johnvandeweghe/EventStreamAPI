@@ -12,6 +12,7 @@ security:
                 - Productively\Api\Security\GuardAuthenticator
 
     access_control:
-        - { path: ^/api/docs.json, roles: PUBLIC_ACCESS } #temp
+        - { path: ^/api/docs., roles: PUBLIC_ACCESS } #temp
+        - { path: ^/api/contexts/, roles: PUBLIC_ACCESS } #temp
         - { path: ^/api/, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/api, roles: PUBLIC_ACCESS } #temp

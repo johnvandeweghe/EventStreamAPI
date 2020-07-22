@@ -2,8 +2,10 @@
 
 namespace Productively\Api\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Ramsey\Uuid\UuidInterface;
@@ -45,6 +47,7 @@ class Subscription
      * @Groups({"subscription:read", "subscription:write"})
      * @Assert\Choice(choices=Subscription::TRANSPORTS)
      * @Assert\NotBlank(groups={"Default", "webhook_transport"})
+     * @ApiFilter(SearchFilter::class, strategy="exact")
      * @ApiProperty(
      *     attributes={
      *         "openapi_context"={
