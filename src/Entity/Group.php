@@ -25,7 +25,17 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     denormalizationContext={"groups"={"group:write"}}
  * )
  * @ORM\Entity(repositoryClass="Productively\Api\Repository\GroupRepository")
- * @ORM\Table(name="`group`")
+ * @ORM\Table(name="`group`", indexes={
+ *     @ORM\Index(name="idx_group_owner", columns={"owner_id"}),
+ *     @ORM\Index(name="idx_group_owner_name", columns={"owner_id", "name"}),
+ *     @ORM\Index(name="idx_group_owner_disc", columns={"owner_id", "discoverable"}),
+ *     @ORM\Index(name="idx_group_owner_disc_name", columns={"owner_id", "discoverable", "name"})
+ * })
+ * Indexes:
+ * - find children groups
+ * - find channels versus direct groups
+ * - access query
+ * - access query with channel/direct query
  */
 class Group
 {

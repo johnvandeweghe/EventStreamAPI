@@ -29,7 +29,14 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     denormalizationContext={"groups"={"group-member:write"}}
  * )
  * @ORM\Entity(repositoryClass="Productively\Api\Repository\GroupMemberRepository")
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uq_groupmembership", columns={"user_id", "user_group_id"})})
+ * @ORM\Table(
+ *     uniqueConstraints={@ORM\UniqueConstraint(name="uq_groupmembership", columns={"user_id", "user_group_id"})},
+ *     indexes={
+ *       @ORM\Index(name="idx_group_id", columns={"user_group_id"}),
+ *       @ORM\Index(name="idx_user_id", columns={"user_id"}),
+ *       @ORM\Index(name="idx_user_group", columns={"user_id", "user_group_id"})
+ *     }
+ * )
  */
 class GroupMember
 {
