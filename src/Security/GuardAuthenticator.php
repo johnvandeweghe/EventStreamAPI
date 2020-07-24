@@ -44,7 +44,7 @@ class GuardAuthenticator extends AbstractAuthenticator
         try {
             $validatedToken = $this->tokenVerifier->verify($token);
         } catch (InvalidTokenException $exception) {
-            throw new CustomUserMessageAuthenticationException("Unable to validate JWT: " . $exception->getMessage(), $exception->getCode(), $exception);
+            throw new CustomUserMessageAuthenticationException("Unable to validate JWT: " . $exception->getMessage(), [], $exception->getCode(), $exception);
         }
 
         $entityManager = $this->managerRegistry->getManagerForClass(User::class);

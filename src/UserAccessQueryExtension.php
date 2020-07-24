@@ -91,19 +91,21 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
 
         $queryBuilder->leftJoin("$rootAlias.owner", 'og');
         $queryBuilder->leftJoin("og.groupMembers", 'ogm');
-        $queryBuilder->leftJoin("ogm.user", 'ogmu');
 
         //Order of joins here matters, when this was first the ogm was broken by the gm part being replaced incorrectly.
         $queryBuilder->leftJoin("$rootAlias.groupMembers", 'gm');
-        $queryBuilder->leftJoin("gm.user", 'gmu');
 
         //Either you are in the group,
         //or you are in the owner group and this group is discoverable,
         //or you know the group ID (not collection) and it is a root group
         $queryBuilder->andWhere(
-            "gmu.id = :userId OR (og is not null and ogmu.id = :userId and $rootAlias.discoverable = true)" .
+            "gm.user = :userId OR (og is not null and ogm.user = :userId and $rootAlias.discoverable = true)" .
             (!$isCollection ? " OR $rootAlias.owner IS NULL" : "")
         );
+//        $queryBuilder->andWhere(
+//            "gm.user = :userId" .
+//            (!$isCollection ? " OR $rootAlias.owner IS NULL" : "")
+//        );
         $queryBuilder->setParameter('userId', $user->getUsername());
     }
 
@@ -119,8 +121,7 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
         $queryBuilder->innerJoin("$rootAlias.userGroup", 'ug');
-        $queryBuilder->innerJoin("ug.groupMembers", 'gm');
-        $queryBuilder->innerJoin("gm.user", 'gmu', Expr\Join::WITH, "gmu.id = :userId");
+        $queryBuilder->innerJoin("ug.groupMembers", 'gm', Expr\Join::WITH, "gm.user = :userId");
 
 
         $queryBuilder->setParameter('userId', $user->getUsername());
@@ -135,8 +136,7 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
     {
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
-        $queryBuilder->innerJoin("$rootAlias.groupMember", 'gm');
-        $queryBuilder->innerJoin("gm.user", 'gmu', Expr\Join::WITH, "gmu.id = :userId");
+        $queryBuilder->innerJoin("$rootAlias.groupMember", 'gm', Expr\Join::WITH, "gm.user = :userId");
         $queryBuilder->setParameter('userId', $user->getUsername());
 
     }
@@ -152,8 +152,7 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
 
         $queryBuilder->innerJoin("$rootAlias.eventGroup", 'eg');
         $queryBuilder->innerJoin("eg.groupMembers", 'gm');
-        $queryBuilder->leftJoin("gm.user", 'gmu');
-        $queryBuilder->andWhere("gmu.id = :userId");
+        $queryBuilder->andWhere("gm.user = :userId");
         $queryBuilder->setParameter('userId', $user->getUsername());
     }
 
@@ -172,8 +171,7 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
         $queryBuilder->leftJoin("$rootAlias.groupMembers", 'ugm');
         $queryBuilder->leftJoin("ugm.userGroup", 'ug');
         $queryBuilder->leftJoin("ug.groupMembers", 'gm');
-        $queryBuilder->leftJoin("gm.user", 'gmu');
-        $queryBuilder->andWhere("$rootAlias.id = :userId OR gmu.id = :userId");
+        $queryBuilder->andWhere("$rootAlias.id = :userId OR gm.user = :userId");
 
 
         $queryBuilder->setParameter('userId', $user->getUsername());

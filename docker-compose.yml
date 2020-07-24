@@ -8,8 +8,6 @@ services:
       image: postgres:11.1-alpine
       container_name: productively-postgres
       working_dir: /application
-      volumes:
-        - .:/application
       environment:
         - POSTGRES_USER=root
         - POSTGRES_PASSWORD=123
@@ -17,25 +15,16 @@ services:
       ports:
         - "8084:5432"
 
-    webserver:
-      image: nginx:alpine
-      container_name: productively-webserver
-      working_dir: /application
-      volumes:
-          - .:/application
-          - ./phpdocker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      ports:
-       - "8080:80"
-
-    php-fpm:
-      build: phpdocker/php-fpm
-      container_name: productively-php-fpm
-      working_dir: /application
+    php-pm:
+      build: docker/php-pm
+      container_name: productively-php-pm
       environment:
         - PHP_IDE_CONFIG=serverName=docker
+        - APP_KERNEL_NAMESPACE=\Productively\Api\
       volumes:
         - .:/application
-        - ./phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/7.4/fpm/conf.d/99-overrides.ini
+      ports:
+        - "8080:80"
 
     pubsub-emulator:
       image: google/cloud-sdk:latest
