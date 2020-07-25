@@ -15,4 +15,6 @@ COPY --from=composer /ppm /ppm
 
 WORKDIR /application
 
-ENTRYPOINT ["/ppm/vendor/bin/ppm", "start", "--host=0.0.0.0", "--port=8080", "--ansi", "--static-directory=public/"]
+COPY . /application
+
+ENTRYPOINT ["/ppm/vendor/bin/ppm", "start", "--host=0.0.0.0", "--port=8080", "--workers=2", "--app-env=prod", "--static-directory=public/"]
