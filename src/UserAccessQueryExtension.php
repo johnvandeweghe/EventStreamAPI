@@ -167,7 +167,6 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
     ): void {
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
-        //TODO: this filters out a user if it's never joined a group, thereby making it impossible to join your first group...
         $queryBuilder->leftJoin("$rootAlias.groupMembers", 'ugm');
         $queryBuilder->leftJoin("ugm.userGroup", 'ug');
         $queryBuilder->leftJoin("ug.groupMembers", 'gm');

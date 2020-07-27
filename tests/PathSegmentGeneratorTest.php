@@ -1,6 +1,7 @@
 <?php
 namespace Productively\Api;
 
+use Doctrine\Inflector\InflectorFactory;
 use PHPUnit\Framework\TestCase;
 
 class PathSegmentGeneratorTest extends TestCase
@@ -10,10 +11,10 @@ class PathSegmentGeneratorTest extends TestCase
         $className = "GlobalTag";
         $expectedUriResource = "globalTag";
 
-        $segmentGenerator = new PathSegmentGenerator();
+        $segmentGenerator = new PathSegmentGenerator(InflectorFactory::create()->build());
 
         //This doesn't actually occur in our configuration, but it technically could, so we test it.
-        $this->assertEquals($expectedUriResource, $segmentGenerator->getSegmentName($className, false));
+        self::assertEquals($expectedUriResource, $segmentGenerator->getSegmentName($className, false));
     }
 
     public function testGetSegmentNameCamelsCollection()
@@ -21,8 +22,8 @@ class PathSegmentGeneratorTest extends TestCase
         $className = "GlobalTag";
         $expectedUriResource = "globalTags";
 
-        $segmentGenerator = new PathSegmentGenerator();
+        $segmentGenerator = new PathSegmentGenerator(InflectorFactory::create()->build());
 
-        $this->assertEquals($expectedUriResource, $segmentGenerator->getSegmentName($className, true));
+        self::assertEquals($expectedUriResource, $segmentGenerator->getSegmentName($className, true));
     }
 }
