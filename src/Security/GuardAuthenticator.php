@@ -11,9 +11,9 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
-use Symfony\Component\Security\Http\Authenticator\Passport\PassportInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Symfony\Component\Security\Http\Authenticator\Passport\UserPassportInterface;
 
 class GuardAuthenticator extends AbstractAuthenticator
 {
@@ -37,7 +37,7 @@ class GuardAuthenticator extends AbstractAuthenticator
             strpos($request->headers->get('Authorization'), 'Bearer') === 0;
     }
 
-    public function authenticate(Request $request): PassportInterface
+    public function authenticate(Request $request): UserPassportInterface
     {
         $token = str_replace("Bearer ", "", $request->headers->get('Authorization'));
 
@@ -59,7 +59,6 @@ class GuardAuthenticator extends AbstractAuthenticator
             $user = new User($validatedToken["sub"]);
             $entityManager->persist($user);
         }
-
 
         $user->name = $validatedToken["name"] ?? null;
         $user->nickname = $validatedToken["nickname"] ?? null;

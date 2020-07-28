@@ -3,7 +3,9 @@ namespace PostChat\Api\Security;
 
 use Auth0\SDK\Exception\InvalidTokenException;
 use Auth0\SDK\Helpers\Tokens\TokenVerifier;
+use Doctrine\ORM\EntityManager;
 use PHPUnit\Framework\TestCase;
+use PostChat\Api\Entity\User;
 use PostChat\Api\Repository\UserRepository;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Test\TestBrowserToken;
@@ -60,6 +62,7 @@ class GuardAuthenticatorTest extends TestCase
     //It's easiest to quickly test the token extraction with this code path so they are combined.
     public function testAuthenticateExtractsTokenToVerifierAndRetrowsInvalidToken()
     {
+
         $tokenVerifier = $this->getMockBuilder(TokenVerifier::class)->disableOriginalConstructor()->getMock();
         $mangerRegistry = $this->getMockBuilder(ManagerRegistry::class)->disableOriginalConstructor()->getMock();
         $userRepository = $this->getMockBuilder(UserRepository::class)->disableOriginalConstructor()->getMock();
@@ -80,8 +83,122 @@ class GuardAuthenticatorTest extends TestCase
         $authenticator->authenticate($request);
     }
 
-    //TODO: test authenticate method
+    public function testThrowsAuthenticationExceptionWhenEntityManagerNotFound()
+    {
+        $tokenVerifier = $this->getMockBuilder(TokenVerifier::class)->disableOriginalConstructor()->getMock();
+        $mangerRegistry = $this->getMockBuilder(ManagerRegistry::class)->disableOriginalConstructor()->getMock();
+        $userRepository = $this->getMockBuilder(UserRepository::class)->disableOriginalConstructor()->getMock();
+        $tokenVerifier->method('verify')->willReturn([]);
 
+        $authenticator = new GuardAuthenticator($tokenVerifier, $mangerRegistry, $userRepository);
+
+        $request = Request::create('/', Request::METHOD_GET, [], [], [], [
+            'HTTP_AUTHORIZATION' => "Bearer anytoken"
+        ]);
+
+        $mangerRegistry->expects(self::once())->method('getManagerForClass')->with(User::class)
+            ->willReturn(null);
+
+        $this->expectException(AuthenticationException::class);
+
+        $authenticator->authenticate($request);
+    }
+
+    public function testCreatesUserWithFieldsFromToken()
+    {
+        $validatedToken = [
+            'sub' => 'mock|er4ewuoth432',
+            'name' => 'John Tester',
+            'nickname' => 'John',
+            'picture' => 'base64:asdweirfweiurth==',
+            'email' => 'john@getpostchat.com'
+        ];
+
+        $tokenVerifier = $this->getMockBuilder(TokenVerifier::class)->disableOriginalConstructor()->getMock();
+        $mangerRegistry = $this->getMockBuilder(ManagerRegistry::class)->disableOriginalConstructor()->getMock();
+        $userRepository = $this->getMockBuilder(UserRepository::class)->disableOriginalConstructor()->setMethods(['find'])->getMock();
+        $entityManager = $this->getMockBuilder(EntityManager::class)->disableOriginalConstructor()->getMock();
+        $tokenVerifier->method('verify')->willReturn($validatedToken);
+        $mangerRegistry->method('getManagerForClass')->with(User::class)->willReturn($entityManager);
+
+
+        $authenticator = new GuardAuthenticator($tokenVerifier, $mangerRegistry, $userRepository);
+
+        $request = Request::create('/', Request::METHOD_GET, [], [], [], [
+            'HTTP_AUTHORIZATION' => "Bearer anytoken"
+        ]);
+
+        $userRepository->expects(self::once())->method('find')->with($validatedToken['sub'])->willReturn(null);
+        $entityManager->expects(self::once())->method('persist')->willReturnCallback(function($user) use ($validatedToken) {
+           self::assertEquals(User::class, get_class($user));
+           /** @var $user User */
+           self::assertEquals($validatedToken['sub'], $user->getId());
+        });
+        $entityManager->expects(self::once())->method('flush');
+        $entityManager->expects(self::once())->method('refresh')->willReturnCallback(function($user) use ($validatedToken) {
+            self::assertEquals(User::class, get_class($user));
+            /** @var $user User */
+            self::assertEquals($validatedToken['sub'], $user->getId());
+        });
+
+        $passport = $authenticator->authenticate($request);
+
+        $user = $passport->getUser();
+        self::assertEquals($validatedToken['sub'], $user->getUsername());
+        self::assertInstanceOf(User::class, $user);
+        /** @var $user User */
+        self::assertEquals($validatedToken['name'], $user->name);
+        self::assertEquals($validatedToken['nickname'], $user->nickname);
+        self::assertEquals($validatedToken['picture'], $user->picture);
+        self::assertEquals($validatedToken['email'], $user->email);
+    }
+
+    public function testUpdatesUserWithFieldsFromToken()
+    {
+        $validatedToken = [
+            'sub' => 'mock|er4ewuoth432',
+            'name' => 'John Tester',
+            'nickname' => 'John',
+            'picture' => 'base64:asdweirfweiurth==',
+            'email' => 'john@getpostchat.com'
+        ];
+
+        $expectedUser = new User($validatedToken['sub']);
+
+        $tokenVerifier = $this->getMockBuilder(TokenVerifier::class)->disableOriginalConstructor()->getMock();
+        $mangerRegistry = $this->getMockBuilder(ManagerRegistry::class)->disableOriginalConstructor()->getMock();
+        $userRepository = $this->getMockBuilder(UserRepository::class)->disableOriginalConstructor()->setMethods(['find'])->getMock();
+        $entityManager = $this->getMockBuilder(EntityManager::class)->disableOriginalConstructor()->getMock();
+        $tokenVerifier->method('verify')->willReturn($validatedToken);
+        $mangerRegistry->method('getManagerForClass')->with(User::class)->willReturn($entityManager);
+
+
+        $authenticator = new GuardAuthenticator($tokenVerifier, $mangerRegistry, $userRepository);
+
+        $request = Request::create('/', Request::METHOD_GET, [], [], [], [
+            'HTTP_AUTHORIZATION' => "Bearer anytoken"
+        ]);
+
+        $userRepository->expects(self::once())->method('find')->with($validatedToken['sub'])->willReturn($expectedUser);
+        $entityManager->expects(self::never())->method('persist');
+        $entityManager->expects(self::once())->method('flush');
+        $entityManager->expects(self::once())->method('refresh')->willReturnCallback(function($user) use ($validatedToken) {
+            self::assertEquals(User::class, get_class($user));
+            /** @var $user User */
+            self::assertEquals($validatedToken['sub'], $user->getId());
+        });
+
+        $passport = $authenticator->authenticate($request);
+
+        $user = $passport->getUser();
+        self::assertEquals($validatedToken['sub'], $user->getUsername());
+        self::assertInstanceOf(User::class, $user);
+        /** @var $user User */
+        self::assertEquals($validatedToken['name'], $user->name);
+        self::assertEquals($validatedToken['nickname'], $user->nickname);
+        self::assertEquals($validatedToken['picture'], $user->picture);
+        self::assertEquals($validatedToken['email'], $user->email);
+    }
 
     public function testUnusedMethodsReturnNull()
     {

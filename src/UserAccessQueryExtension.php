@@ -102,10 +102,7 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
             "gm.user = :userId OR (og is not null and ogm.user = :userId and $rootAlias.discoverable = true)" .
             (!$isCollection ? " OR $rootAlias.owner IS NULL" : "")
         );
-//        $queryBuilder->andWhere(
-//            "gm.user = :userId" .
-//            (!$isCollection ? " OR $rootAlias.owner IS NULL" : "")
-//        );
+
         $queryBuilder->setParameter('userId', $user->getUsername());
     }
 
@@ -123,7 +120,6 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
         $queryBuilder->innerJoin("$rootAlias.userGroup", 'ug');
         $queryBuilder->innerJoin("ug.groupMembers", 'gm', Expr\Join::WITH, "gm.user = :userId");
 
-
         $queryBuilder->setParameter('userId', $user->getUsername());
     }
 
@@ -138,8 +134,8 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
 
         $queryBuilder->innerJoin("$rootAlias.groupMember", 'gm', Expr\Join::WITH, "gm.user = :userId");
         $queryBuilder->setParameter('userId', $user->getUsername());
-
     }
+
     /**
      * Limits event queries to groups that the user is a member of, and sorts them by time.
      * Users can access groups they are members of, and discoverable children of those groups.
