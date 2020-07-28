@@ -1,8 +1,8 @@
 <?php
-namespace Productively\Api\MessageHandler;
+namespace PostChat\Api\MessageHandler;
 
-use Productively\Api\Entity\Event;
-use Productively\Api\Entity\Subscription;
+use PostChat\Api\Entity\Event;
+use PostChat\Api\Entity\Subscription;
 
 class Notification
 {

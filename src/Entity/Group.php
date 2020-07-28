@@ -1,6 +1,6 @@
 <?php
 
-namespace Productively\Api\Entity;
+namespace PostChat\Api\Entity;
 
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
@@ -24,7 +24,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     },
  *     denormalizationContext={"groups"={"group:write"}}
  * )
- * @ORM\Entity(repositoryClass="Productively\Api\Repository\GroupRepository")
+ * @ORM\Entity(repositoryClass="PostChat\Api\Repository\GroupRepository")
  * @ORM\Table(name="`group`", indexes={
  *     @ORM\Index(name="idx_group_owner", columns={"owner_id"}),
  *     @ORM\Index(name="idx_group_owner_name", columns={"owner_id", "name"}),

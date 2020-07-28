@@ -1,11 +1,11 @@
 <?php
 
-namespace Productively\Api\Entity;
+namespace PostChat\Api\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Productively\Api\Repository\UserRepository;
+use PostChat\Api\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;

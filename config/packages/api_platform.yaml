@@ -1,9 +1,9 @@
 api_platform:
     version: 1.0.0
-    title: 'Productively API'
-    description: 'A general messaging API for Productively.'
+    title: 'PostChat API'
+    description: 'The REST API and core of PostChat.'
     show_webby: false
-    path_segment_name_generator: 'Productively\Api\PathSegmentGenerator'
+    path_segment_name_generator: 'PostChat\Api\PathSegmentGenerator'
     mapping:
         paths: ['%kernel.project_dir%/src/Entity']
     formats:

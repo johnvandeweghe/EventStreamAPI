@@ -1,6 +1,6 @@
 <?php
 
-namespace Productively\Api\Entity;
+namespace PostChat\Api\Entity;
 
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiProperty;
@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     denormalizationContext={"groups"={"subscription:write"}},
  *     attributes={"validation_groups"={Subscription::class, "validationGroups"}}
  * )
- * @ORM\Entity(repositoryClass="Productively\Api\Repository\SubscriptionRepository")
+ * @ORM\Entity(repositoryClass="PostChat\Api\Repository\SubscriptionRepository")
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uq_transport_group_member", columns={"transport", "group_member_id"})})
  */
 class Subscription

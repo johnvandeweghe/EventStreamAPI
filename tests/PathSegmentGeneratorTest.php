@@ -1,5 +1,5 @@
 <?php
-namespace Productively\Api;
+namespace PostChat\Api;
 
 use Doctrine\Inflector\InflectorFactory;
 use PHPUnit\Framework\TestCase;

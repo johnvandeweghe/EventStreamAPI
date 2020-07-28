@@ -43,12 +43,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Productively\\Api\\": "src/"
+            "PostChat\\Api\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Productively\\Api\\": "tests/"
+            "PostChat\\Api\\": "tests/"
         }
     },
     "replace": {

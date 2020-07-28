@@ -1,2 +1,2 @@
-# productively-app
+# PostChat API
 

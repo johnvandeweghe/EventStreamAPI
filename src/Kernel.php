@@ -1,6 +1,6 @@
 <?php
 
-namespace Productively\Api;
+namespace PostChat\Api;
 
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;

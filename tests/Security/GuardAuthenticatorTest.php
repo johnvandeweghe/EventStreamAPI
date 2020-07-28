@@ -1,10 +1,10 @@
 <?php
-namespace Productively\Api\Security;
+namespace PostChat\Api\Security;
 
 use Auth0\SDK\Exception\InvalidTokenException;
 use Auth0\SDK\Helpers\Tokens\TokenVerifier;
 use PHPUnit\Framework\TestCase;
-use Productively\Api\Repository\UserRepository;
+use PostChat\Api\Repository\UserRepository;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Test\TestBrowserToken;
 use Symfony\Component\HttpFoundation\Request;

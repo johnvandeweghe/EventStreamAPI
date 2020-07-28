@@ -13,18 +13,18 @@ services:
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
-    Productively\Api\:
+    PostChat\Api\:
         resource: '../src/*'
         exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
 
-    Productively\Api\Controller\:
+    PostChat\Api\Controller\:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
 
-    Productively\Api\DataPersister:
+    PostChat\Api\DataPersister:
         decorates: 'api_platform.doctrine.orm.data_persister'
 
-    Productively\Api\UserAccessQueryExtension:
+    PostChat\Api\UserAccessQueryExtension:
         tags:
             - { name: api_platform.doctrine.orm.query_extension.collection }
             - { name: api_platform.doctrine.orm.query_extension.item }

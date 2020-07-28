@@ -1,10 +1,10 @@
 <?php
-namespace Productively\Api\MessageHandler;
+namespace PostChat\Api\MessageHandler;
 
 use Enqueue\MessengerAdapter\EnvelopeItem\TransportConfiguration;
-use Productively\Api\Entity\Event;
-use Productively\Api\Entity\GroupMember;
-use Productively\Api\Entity\Subscription;
+use PostChat\Api\Entity\Event;
+use PostChat\Api\Entity\GroupMember;
+use PostChat\Api\Entity\Subscription;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 

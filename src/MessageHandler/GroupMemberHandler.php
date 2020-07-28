@@ -1,8 +1,8 @@
 <?php
-namespace Productively\Api\MessageHandler;
+namespace PostChat\Api\MessageHandler;
 
-use Productively\Api\Entity\Event;
-use Productively\Api\Entity\GroupMember;
+use PostChat\Api\Entity\Event;
+use PostChat\Api\Entity\GroupMember;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\Messenger\MessageBusInterface;

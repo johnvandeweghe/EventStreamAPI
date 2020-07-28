@@ -1,12 +1,12 @@
 <?php
-namespace Productively\Api;
+namespace PostChat\Api;
 
 use ApiPlatform\Core\Bridge\Symfony\Messenger\RemoveStamp;
 use ApiPlatform\Core\DataPersister\DataPersisterInterface;
 use ApiPlatform\Core\DataPersister\ContextAwareDataPersisterInterface;
-use Productively\Api\Entity\Event;
-use Productively\Api\Entity\GroupMember;
-use Productively\Api\Entity\User;
+use PostChat\Api\Entity\Event;
+use PostChat\Api\Entity\GroupMember;
+use PostChat\Api\Entity\User;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Core\Security;

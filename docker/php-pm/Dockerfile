@@ -5,8 +5,10 @@ RUN mkdir /ppm && cd /ppm && composer require php-pm/httpkernel-adapter:dev-mast
 FROM php:7.4-cli
 
 RUN apt-get update && apt-get install -y libpq-dev libicu-dev \
-    && docker-php-ext-install intl pdo_pgsql pcntl \
-    && pecl install xdebug
+    && docker-php-ext-install intl pdo_pgsql pcntl opcache \
+    && pecl install xdebug && pecl install apcu \
+    && docker-php-ext-enable xdebug apcu
+
 
 COPY php.ini.dev /usr/local/etc/php/conf.d/99-overrides.ini
 

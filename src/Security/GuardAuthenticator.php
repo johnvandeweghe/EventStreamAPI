@@ -1,10 +1,10 @@
 <?php
-namespace Productively\Api\Security;
+namespace PostChat\Api\Security;
 
 use Auth0\SDK\Exception\InvalidTokenException;
 use Auth0\SDK\Helpers\Tokens\TokenVerifier;
-use Productively\Api\Entity\User;
-use Productively\Api\Repository\UserRepository;
+use PostChat\Api\Entity\User;
+use PostChat\Api\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;

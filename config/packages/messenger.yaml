@@ -12,4 +12,4 @@ framework:
             async: '%env(MESSENGER_TRANSPORT_DSN)%'
 
         routing:
-            'Productively\Api\MessageHandler\Notification': async
+            'PostChat\Api\MessageHandler\Notification': async

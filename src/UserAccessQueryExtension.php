@@ -1,16 +1,16 @@
 <?php
-namespace Productively\Api;
+namespace PostChat\Api;
 
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Extension\QueryItemExtensionInterface;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
-use Productively\Api\Entity\Event;
-use Productively\Api\Entity\Group;
-use Productively\Api\Entity\GroupMember;
-use Productively\Api\Entity\Subscription;
-use Productively\Api\Entity\User;
+use PostChat\Api\Entity\Event;
+use PostChat\Api\Entity\Group;
+use PostChat\Api\Entity\GroupMember;
+use PostChat\Api\Entity\Subscription;
+use PostChat\Api\Entity\User;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 

@@ -1,10 +1,10 @@
 <?php
-namespace Productively\Api\MessageHandler;
+namespace PostChat\Api\MessageHandler;
 
-use Productively\Api\Entity\Event;
-use Productively\Api\Entity\Group;
-use Productively\Api\Entity\GroupMember;
-use Productively\Api\Entity\User;
+use PostChat\Api\Entity\Event;
+use PostChat\Api\Entity\Group;
+use PostChat\Api\Entity\GroupMember;
+use PostChat\Api\Entity\User;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Core\Security;

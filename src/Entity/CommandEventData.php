@@ -1,6 +1,6 @@
 <?php
 
-namespace Productively\Api\Entity;
+namespace PostChat\Api\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     collectionOperations={},
  *     itemOperations={"get"}
  * )
- * @ORM\Entity(repositoryClass="Productively\Api\Repository\CommandEventDataRepository")
+ * @ORM\Entity(repositoryClass="PostChat\Api\Repository\CommandEventDataRepository")
  */
 class CommandEventData
 {

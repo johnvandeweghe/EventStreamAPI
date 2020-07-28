@@ -9,7 +9,7 @@ security:
             pattern: ^/api
             stateless: true
             custom_authenticators:
-                - Productively\Api\Security\GuardAuthenticator
+                - PostChat\Api\Security\GuardAuthenticator
 
     access_control:
         - { path: ^/api/docs., roles: PUBLIC_ACCESS } #temp

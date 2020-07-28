@@ -1,8 +1,8 @@
 <?php
 
-namespace Productively\Api\Repository;
+namespace PostChat\Api\Repository;
 
-use Productively\Api\Entity\Event;
+use PostChat\Api\Entity\Event;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

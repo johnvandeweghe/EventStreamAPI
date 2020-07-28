@@ -1,17 +1,17 @@
 <?php
 
-namespace Productively\Api\DataFixtures;
+namespace PostChat\Api\DataFixtures;
 
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Generator;
 use Interop\Queue\Context;
-use Productively\Api\Entity\Event;
-use Productively\Api\Entity\Group;
-use Productively\Api\Entity\GroupMember;
-use Productively\Api\Entity\MessageEventData;
-use Productively\Api\Entity\Subscription;
-use Productively\Api\Entity\User;
+use PostChat\Api\Entity\Event;
+use PostChat\Api\Entity\Group;
+use PostChat\Api\Entity\GroupMember;
+use PostChat\Api\Entity\MessageEventData;
+use PostChat\Api\Entity\Subscription;
+use PostChat\Api\Entity\User;
 
 class DemoFixtures extends Fixture
 {

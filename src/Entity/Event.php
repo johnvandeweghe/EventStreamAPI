@@ -1,6 +1,6 @@
 <?php
 
-namespace Productively\Api\Entity;
+namespace PostChat\Api\Entity;
 
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
@@ -20,7 +20,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     denormalizationContext={"groups"={"event:write"}},
  *     attributes={"order"={"datetime": "ASC"},"validation_groups"={Event::class, "validationGroups"}}
  * )
- * @ORM\Entity(repositoryClass="Productively\Api\Repository\EventRepository")
+ * @ORM\Entity(repositoryClass="PostChat\Api\Repository\EventRepository")
  * @ORM\Table(indexes={
  *     @ORM\Index(name="idx_group_datetime", columns={"event_group_id", "datetime"}),
  *     @ORM\Index(name="idx_group_user_datetime", columns={"event_group_id", "user_id", "datetime"})

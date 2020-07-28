@@ -1,10 +1,10 @@
 <?php
 
-namespace Productively\Api\Repository;
+namespace PostChat\Api\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Productively\Api\Entity\WebhookSubscriptionData;
+use PostChat\Api\Entity\WebhookSubscriptionData;
 
 /**
  * @method WebhookSubscriptionData|null find($id, $lockMode = null, $lockVersion = null)

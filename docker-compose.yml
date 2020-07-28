@@ -1,12 +1,9 @@
-###############################################################################
-#                          Generated on phpdocker.io                          #
-###############################################################################
 version: "3.1"
 services:
 
     postgres:
       image: postgres:11.1-alpine
-      container_name: productively-postgres
+      container_name: postchat-postgres
       working_dir: /application
       environment:
         - POSTGRES_USER=root
@@ -17,10 +14,10 @@ services:
 
     php-pm:
       build: docker/php-pm
-      container_name: productively-php-pm
+      container_name: postchat-ppm
       environment:
         - PHP_IDE_CONFIG=serverName=docker
-        - APP_KERNEL_NAMESPACE=\Productively\Api\
+        - APP_KERNEL_NAMESPACE=\PostChat\Api\
       volumes:
         - .:/application
       ports:
@@ -28,7 +25,7 @@ services:
 
     pubsub-emulator:
       image: google/cloud-sdk:latest
-      container_name: productively-pubsub
+      container_name: postchat-pubsub
       command: gcloud beta emulators pubsub start --project=wired-episode-279221 --host-port 0.0.0.0:8085
       ports:
         - "8085:8085"

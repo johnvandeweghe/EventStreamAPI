@@ -1,6 +1,6 @@
 <?php
 
-namespace Productively\Api;
+namespace PostChat\Api;
 
 use ApiPlatform\Core\Operation\PathSegmentNameGeneratorInterface;
 use Doctrine\Inflector\Inflector;
