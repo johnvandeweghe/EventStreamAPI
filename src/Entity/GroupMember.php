@@ -63,6 +63,7 @@ class GroupMember
      * @ORM\ManyToOne(targetEntity=Group::class, inversedBy="groupMembers")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"group-member:read", "group-member:write"})
+     * @ApiFilter(SearchFilter::class, properties={"userGroup.id": "exact"})
      */
     protected $userGroup;
 
