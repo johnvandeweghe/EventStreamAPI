@@ -23,12 +23,15 @@ COPY docker/php-pm/php.ini /usr/local/etc/php/conf.d/99-overrides.ini
 
 EXPOSE 8080
 
-COPY --from=composer /ppm /ppm
-COPY --from=composer /application/vendor /application/vendor/
-
 WORKDIR /application
 
 COPY . /application
+
+# Can't ignore because we want it from the other layer :\
+RUN rm -rf vendor/
+
+COPY --from=composer /ppm /ppm
+COPY --from=composer /application/vendor /application/vendor/
 
 ENV APP_ENV=prod
 

@@ -7,6 +7,8 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\ORM\Mapping as ORM;
+use PostChat\Api\Entity\EventData\CommandEventData;
+use PostChat\Api\Entity\EventData\MessageEventData;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Ramsey\Uuid\UuidInterface;
@@ -16,7 +18,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ApiResource(
  *     collectionOperations={"get","post"},
  *     itemOperations={"get"},
- *     normalizationContext={"groups"={"event:read"}},
+ *     normalizationContext={
+ *         "groups"={"event:read"}
+ *     },
  *     denormalizationContext={"groups"={"event:write"}},
  *     attributes={"order"={"datetime": "ASC"},"validation_groups"={Event::class, "validationGroups"}}
  * )
@@ -35,13 +39,15 @@ class Event
     public const TYPE_CHILD_GROUP_CREATED   = "group-created";
     public const TYPE_USER_JOINED           = "user-joined";
     public const TYPE_USER_LEFT             = "user-left";
+    public const TYPE_USER_UPDATED          = "user-updated";
     public const TYPE_USER_ADDED_TO_CHILD   = "user-added-to-child";
 
     public const EPHEMERAL_TYPES = [
         self::TYPE_TYPING_START,
         self::TYPE_TYPING_STOP,
         self::TYPE_CHILD_GROUP_CREATED,
-        self::TYPE_USER_ADDED_TO_CHILD
+        self::TYPE_USER_ADDED_TO_CHILD,
+        self::TYPE_USER_UPDATED
     ];
 
     public const TYPES = [
@@ -55,13 +61,14 @@ class Event
         self::TYPE_USER_ADDED_TO_CHILD
     ];
 
+    public const VALIDATION_DEFAULT = "Default";
+
     /**
      * @ORM\Id()
      * @ORM\Column(type="uuid", unique=true)
      * @ORM\GeneratedValue(strategy="CUSTOM")
      * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
      * @Groups({"event:read", "group-member:read", "group-member:write"})
-     * @Assert\Uuid(groups={"Default", "message_event"})
      */
     protected UuidInterface $id;
 
@@ -75,13 +82,18 @@ class Event
      * @ORM\Column(type="string", length=255)
      * @Groups({"event:read", "event:write"})
      * @Assert\Choice(choices=Event::TYPES)
-     * @Assert\NotBlank(groups={"Default", "message_event"})
+     * @Assert\NotBlank(groups={
+     *     Event::VALIDATION_DEFAULT,
+     *     Event::TYPE_MESSAGE,
+     *     Event::TYPE_Command,
+     *     Event::TYPE_USER_UPDATED
+     * })
      * @ApiProperty(
      *     attributes={
      *         "openapi_context"={
      *             "type"="string",
      *             "enum"=Event::TYPES,
-     *             "example"=EVENT::TYPE_MESSAGE
+     *             "example"=Event::TYPE_MESSAGE
      *         }
      *     }
      * )
@@ -106,16 +118,16 @@ class Event
     /**
      * @ORM\OneToOne(targetEntity=MessageEventData::class, cascade={"persist", "remove"})
      * @Groups({"event:read", "event:write"})
-     * @Assert\NotBlank(groups={"message_event"})
-     * @Assert\IsNull(groups={"Default", "command_event"})
+     * @Assert\NotBlank(groups={Event::TYPE_MESSAGE})
+     * @Assert\IsNull(groups={Event::VALIDATION_DEFAULT, Event::TYPE_COMMAND})
      */
     protected ?MessageEventData $messageEventData = null;
 
     /**
      * @ORM\OneToOne(targetEntity=CommandEventData::class, cascade={"persist", "remove"})
      * @Groups({"event:read", "event:write"})
-     * @Assert\NotBlank(groups={"command_event"})
-     * @Assert\IsNull(groups={"Default", "message_event"})
+     * @Assert\NotBlank(groups={Event::TYPE_COMMAND})
+     * @Assert\IsNull(groups={Event::VALIDATION_DEFAULT, Event::TYPE_MESSAGE})
      */
     protected ?CommandEventData $commandEventData = null;
 
@@ -126,14 +138,18 @@ class Event
     public static function validationGroups(self $event): array
     {
         if ($event->type === self::TYPE_MESSAGE) {
-            return ["message_event"];
+            return [self::TYPE_MESSAGE];
         }
 
         if($event->type === self::TYPE_COMMAND) {
-            return ["command_event"];
+            return [self::TYPE_COMMAND];
         }
 
-        return ["Default"];
+        if($event->type === self::TYPE_USER_UPDATED) {
+            return [self::TYPE_USER_UPDATED];
+        }
+
+        return [self::VALIDATION_DEFAULT];
     }
 
     /**

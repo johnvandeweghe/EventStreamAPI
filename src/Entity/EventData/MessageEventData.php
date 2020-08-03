@@ -1,21 +1,22 @@
 <?php
 
-namespace PostChat\Api\Entity;
+namespace PostChat\Api\Entity\EventData;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use PostChat\Api\Repository\EventData\MessageEventDataRepository;
 
 /**
  * @ApiResource(
  *     collectionOperations={},
  *     itemOperations={"get"}
  * )
- * @ORM\Entity(repositoryClass="PostChat\Api\Repository\CommandEventDataRepository")
+ * @ORM\Entity(repositoryClass=MessageEventDataRepository::class)
  */
-class CommandEventData
+class MessageEventData
 {
     /**
      * @ORM\Id()
@@ -27,16 +28,10 @@ class CommandEventData
     protected UuidInterface $id;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="text")
      * @Groups({"event:read", "event:write"})
      */
-    public string $command;
-
-    /**
-     * @ORM\Column(type="json")
-     * @Groups({"event:read", "event:write"})
-     */
-    public array $parameters;
+    public string $text;
 
     public function getId(): UuidInterface
     {

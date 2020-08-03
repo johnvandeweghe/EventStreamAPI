@@ -16,13 +16,22 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
- *     collectionOperations={"get","post"},
- *     itemOperations={"get"},
+ *     collectionOperations={
+ *         "get",
+ *         "post"={
+ *             denormalizationContext={"groups"={"group:create"}}
+ *         }
+ *     },
+ *     itemOperations={
+ *         "get",
+ *         "patch"={
+ *             denormalizationContext={"groups"={"group:update"}}
+ *         }
+ *     },
  *     normalizationContext={
  *         "groups"={"group:read"},
  *         "skip_null_values" = false,
- *     },
- *     denormalizationContext={"groups"={"group:write"}}
+ *     }
  * )
  * @ORM\Entity(repositoryClass="PostChat\Api\Repository\GroupRepository")
  * @ORM\Table(name="`group`", indexes={
@@ -44,27 +53,27 @@ class Group
      * @ORM\Column(type="uuid", unique=true)
      * @ORM\GeneratedValue(strategy="CUSTOM")
      * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
-     * @Groups({"group:read", "group:write", "event:read", "event:write", "group-member:read", "group-member:write"})
+     * @Groups({"group:read", "group:create", "event:read", "event:write", "group-member:read", "group-member:write"})
      * @Assert\Uuid
      */
     protected UuidInterface $id;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"group:read", "group:write"})
+     * @Groups({"group:read", "group:create", "group:update"})
      * @ApiFilter(ExistsFilter::class)
      */
     public ?string $name;
 
     /**
      * @ORM\Column(type="string", length=512, nullable=true)
-     * @Groups({"group:read", "group:write"})
+     * @Groups({"group:read", "group:create", "group:update"})
      */
     public ?string $description;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"group:read", "group:write"})
+     * @Groups({"group:read", "group:create", "group:update"})
      */
     public bool $discoverable = true;
 
@@ -75,7 +84,7 @@ class Group
 
     /**
      * @ORM\ManyToOne(targetEntity=Group::class, inversedBy="subGroups")
-     * @Groups({"group:read", "group:write"})
+     * @Groups({"group:read", "group:create"})
      * @ApiFilter(SearchFilter::class, properties={"owner.id": "exact"})
      * @ApiFilter(ExistsFilter::class)
      */

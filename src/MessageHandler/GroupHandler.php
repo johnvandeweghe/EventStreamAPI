@@ -13,13 +13,7 @@ use Doctrine\Common\Persistence\ManagerRegistry;
 class GroupHandler implements MessageHandlerInterface
 {
     private Security $security;
-    /**
-     * @var ManagerRegistry
-     */
     private ManagerRegistry $managerRegistry;
-    /**
-     * @var MessageBusInterface
-     */
     private MessageBusInterface $messageBus;
 
     public function __construct(Security $security, ManagerRegistry $managerRegistry, MessageBusInterface $messageBus)

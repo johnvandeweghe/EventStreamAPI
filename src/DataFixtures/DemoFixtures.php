@@ -9,7 +9,7 @@ use Interop\Queue\Context;
 use PostChat\Api\Entity\Event;
 use PostChat\Api\Entity\Group;
 use PostChat\Api\Entity\GroupMember;
-use PostChat\Api\Entity\MessageEventData;
+use PostChat\Api\Entity\EventData\MessageEventData;
 use PostChat\Api\Entity\Subscription;
 use PostChat\Api\Entity\User;
 

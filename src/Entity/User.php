@@ -43,6 +43,7 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Groups({"user:read", "user:write"})
+     * @Assert\Email()
      */
     public ?string $email;
 

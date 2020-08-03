@@ -19,9 +19,6 @@ class GuardAuthenticator extends AbstractAuthenticator
 {
     private TokenVerifier $tokenVerifier;
     private ManagerRegistry $managerRegistry;
-    /**
-     * @var UserRepository
-     */
     private UserRepository $userRepository;
 
     public function __construct(TokenVerifier $tokenVerifier, ManagerRegistry $managerRegistry, UserRepository $userRepository)
