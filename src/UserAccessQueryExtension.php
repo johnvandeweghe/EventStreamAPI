@@ -95,12 +95,15 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
         //Order of joins here matters, when this was first the ogm was broken by the gm part being replaced incorrectly.
         $queryBuilder->leftJoin("$rootAlias.groupMembers", 'gm');
 
-        //Either you are in the group,
-        //or you are in the owner group and this group is discoverable,
-        //or you know the group ID (not collection) and it is a root group
         $queryBuilder->andWhere(
-            "gm.user = :userId OR (og is not null and ogm.user = :userId and $rootAlias.discoverable = true)" .
-            (!$isCollection ? " OR $rootAlias.owner IS NULL" : "")
+            //Either you are in the group
+            "gm.user = :userId" .
+            ($isCollection ?
+                //Or you belong to it's parent and it's discoverable
+                " OR (og is not null AND ogm.user = :userId AND $rootAlias.discoverable = true)" :
+                //Or you know it's id and it is root, or you belong to it's parent
+                " OR og IS NULL OR (og is not null AND and ogm.user = :userId)"
+            )
         );
 
         $queryBuilder->setParameter('userId', $user->getUsername());

@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ApiResource(
  *     collectionOperations={"get"},
- *     itemOperations={"get", "patch"={"security"="object.user == user"}},
+ *     itemOperations={"get", "patch"={"security"="object == user"}},
  *     normalizationContext={
  *         "groups"={"user:read"},
  *         "skip_null_values" = false

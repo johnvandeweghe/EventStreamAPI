@@ -85,7 +85,7 @@ class Event
      * @Assert\NotBlank(groups={
      *     Event::VALIDATION_DEFAULT,
      *     Event::TYPE_MESSAGE,
-     *     Event::TYPE_Command,
+     *     Event::TYPE_COMMAND,
      *     Event::TYPE_USER_UPDATED
      * })
      * @ApiProperty(

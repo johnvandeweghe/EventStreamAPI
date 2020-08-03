@@ -19,13 +19,13 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     collectionOperations={
  *         "get",
  *         "post"={
- *             denormalizationContext={"groups"={"group:create"}}
+ *             "denormalization_context"={"groups"={"group:create"}}
  *         }
  *     },
  *     itemOperations={
  *         "get",
  *         "patch"={
- *             denormalizationContext={"groups"={"group:update"}}
+ *             "denormalization_context"={"groups"={"group:update"}}
  *         }
  *     },
  *     normalizationContext={

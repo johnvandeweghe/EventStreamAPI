@@ -57,10 +57,20 @@ class GuardAuthenticator extends AbstractAuthenticator
             $entityManager->persist($user);
         }
 
-        $user->name = $validatedToken["name"] ?? null;
-        $user->nickname = $validatedToken["nickname"] ?? null;
-        $user->picture = $validatedToken["picture"] ?? null;
-        $user->email = $validatedToken["email"] ?? null;
+        //Below is disabled because it breaks updating a user info (outdated token overwrites manual changes).
+        //Also id tokens aren't used yet.
+//        if($name = ($validatedToken["name"] ?? null)) {
+//            $user->name = $name;
+//        }
+//        if($nickname = ($validatedToken["nickname"] ?? null)) {
+//            $user->nickname = $nickname;
+//        }
+//        if($picture = ($validatedToken["picture"] ?? null)) {
+//            $user->picture = $picture;
+//        }
+//        if($email = ($validatedToken["email"] ?? null)) {
+//            $user->email = $email;
+//        }
 
         $entityManager->flush();
         $entityManager->refresh($user);
