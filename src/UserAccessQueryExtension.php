@@ -102,7 +102,7 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
                 //Or you belong to it's parent and it's discoverable
                 " OR (og is not null AND ogm.user = :userId AND $rootAlias.discoverable = true)" :
                 //Or you know it's id and it is root, or you belong to it's parent
-                " OR og IS NULL OR (og is not null AND and ogm.user = :userId)"
+                " OR og IS NULL OR (og is not null AND ogm.user = :userId)"
             )
         );
 

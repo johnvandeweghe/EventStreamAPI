@@ -1,6 +1,7 @@
 <?php
 namespace PostChat\Api\Security;
 
+use Auth0\SDK\API\Management;
 use Auth0\SDK\Exception\InvalidTokenException;
 use Auth0\SDK\Helpers\Tokens\TokenVerifier;
 use PostChat\Api\Entity\User;
@@ -20,12 +21,18 @@ class GuardAuthenticator extends AbstractAuthenticator
     private TokenVerifier $tokenVerifier;
     private ManagerRegistry $managerRegistry;
     private UserRepository $userRepository;
+    private Management $management;
 
-    public function __construct(TokenVerifier $tokenVerifier, ManagerRegistry $managerRegistry, UserRepository $userRepository)
-    {
+    public function __construct(
+        TokenVerifier $tokenVerifier,
+        ManagerRegistry $managerRegistry,
+        UserRepository $userRepository,
+        Management $management
+    ) {
         $this->tokenVerifier = $tokenVerifier;
         $this->managerRegistry = $managerRegistry;
         $this->userRepository = $userRepository;
+        $this->management = $management;
     }
 
     public function supports(Request $request): ?bool
@@ -53,24 +60,15 @@ class GuardAuthenticator extends AbstractAuthenticator
         $user = $this->userRepository->find($validatedToken["sub"]);
 
         if(!$user) {
+            $remoteUser = $this->management->users()->get($validatedToken["sub"]);
+
             $user = new User($validatedToken["sub"]);
+            $user->name = $remoteUser["name"] ?? null;
+            $user->nickname = $remoteUser["nickname"] ?? null;
+            $user->picture = $remoteUser["picture"] ?? null;
+            $user->email = $remoteUser["email"] ?? null;
             $entityManager->persist($user);
         }
-
-        //Below is disabled because it breaks updating a user info (outdated token overwrites manual changes).
-        //Also id tokens aren't used yet.
-//        if($name = ($validatedToken["name"] ?? null)) {
-//            $user->name = $name;
-//        }
-//        if($nickname = ($validatedToken["nickname"] ?? null)) {
-//            $user->nickname = $nickname;
-//        }
-//        if($picture = ($validatedToken["picture"] ?? null)) {
-//            $user->picture = $picture;
-//        }
-//        if($email = ($validatedToken["email"] ?? null)) {
-//            $user->email = $email;
-//        }
 
         $entityManager->flush();
         $entityManager->refresh($user);
