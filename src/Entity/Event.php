@@ -22,7 +22,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *         "groups"={"event:read"}
  *     },
  *     denormalizationContext={"groups"={"event:write"}},
- *     attributes={"order"={"datetime": "ASC"},"validation_groups"={Event::class, "validationGroups"}}
+ *     attributes={"order"={"datetime": "DESC"},"validation_groups"={Event::class, "validationGroups"}}
  * )
  * @ORM\Entity(repositoryClass="PostChat\Api\Repository\EventRepository")
  * @ORM\Table(indexes={
