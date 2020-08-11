@@ -43,14 +43,14 @@ class UserHandler implements MessageHandlerInterface
             $this->logger->error("Failed to save user data to Auth0: " . $exception->getMessage());
         }
 
-        //Fire an event to each workspace the user belongs to
-        foreach($user->getGroupMembers() as $groupMember) {
-            $userGroup = $groupMember->getUserGroup();
-            if($userGroup->getOwner() !== null) {
+        //Fire an event to each workspace (root group) the user belongs to
+        foreach($user->getStreamUsers() as $streamUser) {
+            $stream = $streamUser->getStream();
+            if($stream->getOwner() !== null) {
                 continue;
             }
             $userUpdatedEvent = Event::createEphemeralEvent();
-            $userUpdatedEvent->setEventGroup($userGroup);
+            $userUpdatedEvent->setStream($stream);
             $userUpdatedEvent->setUser($user);
             $userUpdatedEvent->type = Event::TYPE_USER_UPDATED;
 

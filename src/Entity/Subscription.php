@@ -20,7 +20,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     attributes={"validation_groups"={Subscription::class, "validationGroups"}}
  * )
  * @ORM\Entity(repositoryClass="PostChat\Api\Repository\SubscriptionRepository")
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uq_transport_group_member", columns={"transport", "group_member_id"})})
+ * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uq_transport_stream_user", columns={"transport", "stream_user_id"})})
  */
 class Subscription
 {
@@ -68,11 +68,11 @@ class Subscription
     public ?array $eventTypes;
 
     /**
-     * @ORM\ManyToOne(targetEntity=GroupMember::class, inversedBy="subscriptions")
+     * @ORM\ManyToOne(targetEntity=StreamUser::class, inversedBy="subscriptions")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"subscription:read", "subscription:write"})
      */
-    protected GroupMember $groupMember;
+    protected StreamUser $streamUser;
 
     /**
      * @ORM\OneToOne(targetEntity=WebhookSubscriptionData::class, cascade={"persist", "remove"})
@@ -99,14 +99,14 @@ class Subscription
         return $this->id;
     }
 
-    public function getGroupMember(): GroupMember
+    public function getStreamUser(): StreamUser
     {
-        return $this->groupMember;
+        return $this->streamUser;
     }
 
-    public function setGroupMember(GroupMember $groupMember): void
+    public function setStreamUser(StreamUser $streamUser): void
     {
-        $this->groupMember = $groupMember;
+        $this->streamUser = $streamUser;
     }
 
     public function getTransport(): string

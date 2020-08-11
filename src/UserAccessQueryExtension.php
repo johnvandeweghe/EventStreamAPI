@@ -7,8 +7,8 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
 use PostChat\Api\Entity\Event;
-use PostChat\Api\Entity\Group;
-use PostChat\Api\Entity\GroupMember;
+use PostChat\Api\Entity\Stream;
+use PostChat\Api\Entity\StreamUser;
 use PostChat\Api\Entity\Subscription;
 use PostChat\Api\Entity\User;
 use Symfony\Component\Security\Core\Security;
@@ -57,11 +57,11 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
         }
 
         switch($resourceClass) {
-            case Group::class:
-                $this->applyUserFilterToQueryBuilderForGroup($queryBuilder, $user, $isCollection);
+            case Stream::class:
+                $this->applyUserFilterToQueryBuilderForStream($queryBuilder, $user, $isCollection);
                 break;
-            case GroupMember::class:
-                $this->applyUserFilterToQueryBuilderForGroupMember($queryBuilder, $user);
+            case StreamUser::class:
+                $this->applyUserFilterToQueryBuilderForStreamUser($queryBuilder, $user);
                 break;
             case Subscription::class:
                 $this->applyUserFilterToQueryBuilderForSubscriptions($queryBuilder, $user);
@@ -76,33 +76,33 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
     }
 
     /**
-     * Limits group queries to groups that the user can view.
-     * Users can access groups they are members of, and discoverable children of those groups.
+     * Limits stream queries to streams that the user can view.
+     * Users can access stream they are members of, and discoverable children of those streams.
      * @param QueryBuilder $queryBuilder
      * @param UserInterface $user
      * @param bool $isCollection
      */
-    private function applyUserFilterToQueryBuilderForGroup(
+    private function applyUserFilterToQueryBuilderForStream(
         QueryBuilder $queryBuilder,
         UserInterface $user,
         bool $isCollection
     ): void {
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
-        $queryBuilder->leftJoin("$rootAlias.owner", 'og');
-        $queryBuilder->leftJoin("og.groupMembers", 'ogm');
+        $queryBuilder->leftJoin("$rootAlias.owner", 'os');
+        $queryBuilder->leftJoin("og.streamUsers", 'osu');
 
-        //Order of joins here matters, when this was first the ogm was broken by the gm part being replaced incorrectly.
-        $queryBuilder->leftJoin("$rootAlias.groupMembers", 'gm');
+        //Order of joins here matters, when this was first the osu was broken by the os part being replaced incorrectly.
+        $queryBuilder->leftJoin("$rootAlias.streamUsers", 'su');
 
         $queryBuilder->andWhere(
-            //Either you are in the group
-            "gm.user = :userId" .
+            //Either you are in the stream
+            "su.user = :userId" .
             ($isCollection ?
                 //Or you belong to it's parent and it's discoverable
-                " OR (og is not null AND ogm.user = :userId AND $rootAlias.discoverable = true)" :
+                " OR (os is not null AND osu.user = :userId AND $rootAlias.discoverable = true)" :
                 //Or you know it's id and it is root, or you belong to it's parent
-                " OR og IS NULL OR (og is not null AND ogm.user = :userId)"
+                " OR os IS NULL OR (os is not null AND osu.user = :userId)"
             )
         );
 
@@ -110,18 +110,18 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
     }
 
     /**
-     * Limits group member queries to group members in groups that the user is directly a member of.
+     * Limits stream user queries to stream users in streams that the user is directly a member of.
      * @param QueryBuilder $queryBuilder
      * @param UserInterface $user
      */
-    private function applyUserFilterToQueryBuilderForGroupMember(
+    private function applyUserFilterToQueryBuilderForStreamUser(
         QueryBuilder $queryBuilder,
         UserInterface $user
     ): void {
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
-        $queryBuilder->innerJoin("$rootAlias.userGroup", 'ug');
-        $queryBuilder->innerJoin("ug.groupMembers", 'gm', Expr\Join::WITH, "gm.user = :userId");
+        $queryBuilder->innerJoin("$rootAlias.stream", 'us');
+        $queryBuilder->innerJoin("us.streamUsers", 'su', Expr\Join::WITH, "su.user = :userId");
 
         $queryBuilder->setParameter('userId', $user->getUsername());
     }
@@ -135,13 +135,13 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
     {
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
-        $queryBuilder->innerJoin("$rootAlias.groupMember", 'gm', Expr\Join::WITH, "gm.user = :userId");
+        $queryBuilder->innerJoin("$rootAlias.streamUser", 'su', Expr\Join::WITH, "su.user = :userId");
         $queryBuilder->setParameter('userId', $user->getUsername());
     }
 
     /**
-     * Limits event queries to groups that the user is a member of, and sorts them by time.
-     * Users can access groups they are members of, and discoverable children of those groups.
+     * Limits event queries to streams that the user is a member of.
+     * Users can access streams they are members of, and discoverable children of those streams.
      * @param QueryBuilder $queryBuilder
      * @param UserInterface $user
      */
@@ -149,14 +149,14 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
     {
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
-        $queryBuilder->innerJoin("$rootAlias.eventGroup", 'eg');
-        $queryBuilder->innerJoin("eg.groupMembers", 'gm');
-        $queryBuilder->andWhere("gm.user = :userId");
+        $queryBuilder->innerJoin("$rootAlias.stream", 'es');
+        $queryBuilder->innerJoin("es.streamUsers", 'su');
+        $queryBuilder->andWhere("su.user = :userId");
         $queryBuilder->setParameter('userId', $user->getUsername());
     }
 
     /**
-     * Limits group member queries to users in groups that the user is directly a member of.
+     * Limits user queries to users in streams that the user is directly a member of.
      * @param QueryBuilder $queryBuilder
      * @param UserInterface $user
      */
@@ -166,10 +166,10 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
     ): void {
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
-        $queryBuilder->leftJoin("$rootAlias.groupMembers", 'ugm');
-        $queryBuilder->leftJoin("ugm.userGroup", 'ug');
-        $queryBuilder->leftJoin("ug.groupMembers", 'gm');
-        $queryBuilder->andWhere("$rootAlias.id = :userId OR gm.user = :userId");
+        $queryBuilder->leftJoin("$rootAlias.streamUsers", 'usu');
+        $queryBuilder->leftJoin("usu.stream", 'us');
+        $queryBuilder->leftJoin("us.streamUsers", 'su');
+        $queryBuilder->andWhere("$rootAlias.id = :userId OR su.user = :userId");
 
 
         $queryBuilder->setParameter('userId', $user->getUsername());

@@ -1,5 +1,5 @@
 api_platform:
-    version: 1.0.0
+    version: 2.0.0
     title: 'PostChat API'
     description: 'The REST API and core of PostChat.'
     show_webby: false

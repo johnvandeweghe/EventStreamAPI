@@ -7,8 +7,8 @@ use Doctrine\Persistence\ObjectManager;
 use Faker\Generator;
 use Interop\Queue\Context;
 use PostChat\Api\Entity\Event;
-use PostChat\Api\Entity\Group;
-use PostChat\Api\Entity\GroupMember;
+use PostChat\Api\Entity\Stream;
+use PostChat\Api\Entity\StreamUser;
 use PostChat\Api\Entity\EventData\MessageEventData;
 use PostChat\Api\Entity\Subscription;
 use PostChat\Api\Entity\User;
@@ -35,17 +35,17 @@ class DemoFixtures extends Fixture
 
         $johnsUser = new User("auth0|5eb51dd31cc1ac0c1493050e");
 
-        $groupMember1 = new GroupMember();
-        $groupMember1->setUser($johnsUser);
-        $groupMember1->setUserGroup($workspace);
+        $streamUser1 = new StreamUser();
+        $streamUser1->setUser($johnsUser);
+        $streamUser1->setStream($workspace);
 
-        $groupMember2 = new GroupMember();
-        $groupMember2->setUser($johnsUser);
-        $groupMember2->setUserGroup($workspace2);
+        $streamUser2 = new StreamUser();
+        $streamUser2->setUser($johnsUser);
+        $streamUser2->setStream($workspace2);
 
         $manager->persist($johnsUser);
-        $manager->persist($groupMember1);
-        $manager->persist($groupMember2);
+        $manager->persist($streamUser1);
+        $manager->persist($streamUser2);
 
         $manager->flush();
 
@@ -57,12 +57,12 @@ class DemoFixtures extends Fixture
         int $numChannels,
         int $numMockUsers,
         int $numMockEvents
-    ): Group {
-        $workspace = new Group();
+    ): Stream {
+        $workspace = new Stream();
         $workspace->name = $this->faker->company;
         $workspace->discoverable = false;
 
-        $generalChannel = new Group();
+        $generalChannel = new Stream();
         $generalChannel->setOwner($workspace);
         $generalChannel->name = "General";
         $generalChannel->discoverable = true;
@@ -76,17 +76,17 @@ class DemoFixtures extends Fixture
             $user->name = $user->nickname . " " . $this->faker->lastName;
             $user->email = $this->faker->email;
 
-            $groupMemberWorkspace = new GroupMember();
-            $groupMemberWorkspace->setUser($user);
-            $groupMemberWorkspace->setUserGroup($workspace);
+            $streamUserWorkspace = new StreamUser();
+            $streamUserWorkspace->setUser($user);
+            $streamUserWorkspace->setStream($workspace);
 
-            $groupMemberGeneral = new GroupMember();
-            $groupMemberGeneral->setUser($user);
-            $groupMemberGeneral->setUserGroup($generalChannel);
+            $streamUserGeneral = new StreamUser();
+            $streamUserGeneral->setUser($user);
+            $streamUserGeneral->setStream($generalChannel);
 
             $manager->persist($user);
-            $manager->persist($groupMemberWorkspace);
-            $manager->persist($groupMemberGeneral);
+            $manager->persist($streamUserWorkspace);
+            $manager->persist($streamUserGeneral);
         }
 
         //Generate random channels and add users randomly (2 to 20 users, or the mock user limit, whatever is smaller)
@@ -101,10 +101,10 @@ class DemoFixtures extends Fixture
         return $workspace;
     }
 
-    protected function createChannels(ObjectManager $manager, Group $workspace, array $users, int $numChannels, int $numMockUsers, int $numMockEvents, int $maxUsersPerChannel, bool $discoverable): void
+    protected function createChannels(ObjectManager $manager, Stream $workspace, array $users, int $numChannels, int $numMockUsers, int $numMockEvents, int $maxUsersPerChannel, bool $discoverable): void
     {
         foreach (range(1, $numChannels) as $i) {
-            $channel = new Group();
+            $channel = new Stream();
             $channel->name = $discoverable ? $this->faker->jobTitle : null;
             $channel->discoverable = $discoverable;
             $channel->setOwner($workspace);
@@ -113,33 +113,33 @@ class DemoFixtures extends Fixture
 
             $channelUsers = array_slice($users, 0, min($numMockUsers, random_int(2, $maxUsersPerChannel)));
             foreach ($channelUsers as $channelUser) {
-                $groupMember = new GroupMember();
-                $groupMember->setUser($channelUser);
-                $groupMember->setUserGroup($channel);
+                $streamUser = new StreamUser();
+                $streamUser->setUser($channelUser);
+                $streamUser->setStream($channel);
 
                 $event = new Event();
                 $event->setUser($channelUser);
-                $event->setEventGroup($channel);
+                $event->setStream($channel);
                 $event->type = Event::TYPE_USER_JOINED;
                 $event->datetime = new \DateTimeImmutable("Jan 1st");
 
                 if (random_int(0, 1) === 1) {
                     $subscription = new Subscription();
                     $subscription->transport = "pusher";
-                    $subscription->setGroupMember($groupMember);
+                    $subscription->setStreamUser($streamUser);
 
                     $manager->persist($subscription);
                 }
 
                 $manager->persist($event);
-                $manager->persist($groupMember);
+                $manager->persist($streamUser);
             }
 
             //Add events
             foreach (range(1, $numMockEvents) as $y) {
                 $event = new Event();
                 $event->setUser($channelUsers[array_rand($channelUsers)]);
-                $event->setEventGroup($channel);
+                $event->setStream($channel);
                 $event->type = Event::TYPE_MESSAGE;
                 $event->datetime = \DateTimeImmutable::createFromMutable($this->faker->dateTimeThisYear);
 

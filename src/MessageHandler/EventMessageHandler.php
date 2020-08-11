@@ -3,7 +3,7 @@ namespace PostChat\Api\MessageHandler;
 
 use Enqueue\MessengerAdapter\EnvelopeItem\TransportConfiguration;
 use PostChat\Api\Entity\Event;
-use PostChat\Api\Entity\GroupMember;
+use PostChat\Api\Entity\StreamUser;
 use PostChat\Api\Entity\Subscription;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -19,9 +19,9 @@ class EventMessageHandler implements MessageHandlerInterface
     public function __invoke(Event $event)
     {
         $subscriptionsByTransport = array_reduce(
-            array_merge([], ...array_map(static function(GroupMember $groupMember) {
-                return $groupMember->getSubscriptions();
-            }, $event->getEventGroup()->getGroupMembers())),
+            array_merge([], ...array_map(static function(StreamUser $streamUser) {
+                return $streamUser->getSubscriptions();
+            }, $event->getStream()->getStreamUsers())),
             static function($carry, Subscription $item) use ($event) {
                 if($item->eventTypes && !in_array($event->type, $item->eventTypes, true)) {
                     return $carry;

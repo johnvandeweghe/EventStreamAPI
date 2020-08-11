@@ -13,6 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use PostChat\Api\Repository\StreamUserRepository;
 
 /**
  * @ApiResource(
@@ -23,59 +24,59 @@ use Symfony\Component\Validator\Constraints as Assert;
  *         "delete"={"security"="object.user == user"}
  *     },
  *     normalizationContext={
- *         "groups"={"group-member:read"},
+ *         "groups"={"stream-user:read"},
  *         "skip_null_values" = false
  *     },
- *     denormalizationContext={"groups"={"group-member:write"}}
+ *     denormalizationContext={"groups"={"stream-user:write"}}
  * )
- * @ORM\Entity(repositoryClass="PostChat\Api\Repository\GroupMemberRepository")
+ * @ORM\Entity(repositoryClass=StreamUserRepository::class)
  * @ORM\Table(
- *     uniqueConstraints={@ORM\UniqueConstraint(name="uq_groupmembership", columns={"user_id", "user_group_id"})},
+ *     uniqueConstraints={@ORM\UniqueConstraint(name="uq_stream_user", columns={"user_id", "stream_id"})},
  *     indexes={
- *       @ORM\Index(name="idx_group_id", columns={"user_group_id"}),
+ *       @ORM\Index(name="idx_stream_id", columns={"stream_id"}),
  *       @ORM\Index(name="idx_user_id", columns={"user_id"}),
- *       @ORM\Index(name="idx_user_group", columns={"user_id", "user_group_id"})
+ *       @ORM\Index(name="idx_user_stream", columns={"user_id", "stream_id"})
  *     }
  * )
  */
-class GroupMember
+class StreamUser
 {
     /**
      * @ORM\Id()
      * @ORM\Column(type="uuid", unique=true)
      * @ORM\GeneratedValue(strategy="CUSTOM")
      * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
-     * @Groups({"group-member:read", "subscription:read", "subscription:write"})
+     * @Groups({"stream-user:read", "subscription:read", "subscription:write"})
      * @Assert\Uuid
      */
     protected UuidInterface $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="groupMembers")
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="streamUsers")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"group-member:read", "group-member:write"})
+     * @Groups({"stream-user:read", "stream-user:write"})
      * @ApiFilter(SearchFilter::class, properties={"user.id": "exact"})
      * @ApiProperty(push=true)
      */
     protected User $user;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Group::class, inversedBy="groupMembers")
+     * @ORM\ManyToOne(targetEntity=Stream::class, inversedBy="streamUsers")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"group-member:read", "group-member:write"})
-     * @ApiFilter(SearchFilter::class, properties={"userGroup.id": "exact"})
+     * @Groups({"stream-user:read", "stream-user:write"})
+     * @ApiFilter(SearchFilter::class, properties={"stream.id": "exact"})
      */
-    protected $userGroup;
+    protected $stream;
 
     /**
-     * @ORM\OneToMany(targetEntity=Subscription::class, mappedBy="groupMember", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Subscription::class, mappedBy="streamUser", orphanRemoval=true)
      * @ApiSubresource()
      */
     protected $subscriptions;
 
     /**
      * @ORM\ManyToOne(targetEntity=Event::class)
-     * @Groups({"group-member:read", "group-member:write"})
+     * @Groups({"stream-user:read", "stream-user:write"})
      */
     protected $lastSeenEvent;
 
@@ -89,14 +90,14 @@ class GroupMember
         return $this->id;
     }
 
-    public function getUserGroup(): Group
+    public function getStream(): Stream
     {
-        return $this->userGroup;
+        return $this->stream;
     }
 
-    public function setUserGroup(Group $userGroup): void
+    public function setStream(Stream $stream): void
     {
-        $this->userGroup = $userGroup;
+        $this->stream = $stream;
     }
 
     public function getUser(): User
@@ -121,7 +122,7 @@ class GroupMember
     {
         if (!$this->subscriptions->contains($subscription)) {
             $this->subscriptions[] = $subscription;
-            $subscription->setGroupMember($this);
+            $subscription->setStreamUser($this);
         }
     }
 
@@ -130,8 +131,8 @@ class GroupMember
         if ($this->subscriptions->contains($subscription)) {
             $this->subscriptions->removeElement($subscription);
             // set the owning side to null (unless already changed)
-            if ($subscription->getGroupMember() === $this) {
-                $subscription->setGroupMember(null);
+            if ($subscription->getStreamUser() === $this) {
+                $subscription->setStreamUser(null);
             }
         }
     }

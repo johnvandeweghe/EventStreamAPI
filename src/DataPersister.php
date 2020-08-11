@@ -5,7 +5,7 @@ use ApiPlatform\Core\Bridge\Symfony\Messenger\RemoveStamp;
 use ApiPlatform\Core\DataPersister\DataPersisterInterface;
 use ApiPlatform\Core\DataPersister\ContextAwareDataPersisterInterface;
 use PostChat\Api\Entity\Event;
-use PostChat\Api\Entity\GroupMember;
+use PostChat\Api\Entity\StreamUser;
 use PostChat\Api\Entity\User;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Messenger\MessageBusInterface;

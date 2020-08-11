@@ -26,8 +26,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * )
  * @ORM\Entity(repositoryClass="PostChat\Api\Repository\EventRepository")
  * @ORM\Table(indexes={
- *     @ORM\Index(name="idx_group_datetime", columns={"event_group_id", "datetime"}),
- *     @ORM\Index(name="idx_group_user_datetime", columns={"event_group_id", "user_id", "datetime"})
+ *     @ORM\Index(name="idx_stream_datetime", columns={"stream_id", "datetime"}),
+ *     @ORM\Index(name="idx_stream_user_datetime", columns={"stream_id", "user_id", "datetime"})
  * })
  */
 class Event
@@ -36,7 +36,7 @@ class Event
     public const TYPE_COMMAND               = "command";
     public const TYPE_TYPING_START          = "typing-start";
     public const TYPE_TYPING_STOP           = "typing-stop";
-    public const TYPE_CHILD_GROUP_CREATED   = "group-created";
+    public const TYPE_CHILD_STREAM_CREATED  = "stream-created";
     public const TYPE_USER_JOINED           = "user-joined";
     public const TYPE_USER_LEFT             = "user-left";
     public const TYPE_USER_UPDATED          = "user-updated";
@@ -45,7 +45,7 @@ class Event
     public const EPHEMERAL_TYPES = [
         self::TYPE_TYPING_START,
         self::TYPE_TYPING_STOP,
-        self::TYPE_CHILD_GROUP_CREATED,
+        self::TYPE_CHILD_STREAM_CREATED,
         self::TYPE_USER_ADDED_TO_CHILD,
         self::TYPE_USER_UPDATED
     ];
@@ -55,7 +55,7 @@ class Event
         self::TYPE_COMMAND,
         self::TYPE_TYPING_START,
         self::TYPE_TYPING_STOP,
-        self::TYPE_CHILD_GROUP_CREATED,
+        self::TYPE_CHILD_STREAM_CREATED,
         self::TYPE_USER_JOINED,
         self::TYPE_USER_LEFT,
         self::TYPE_USER_ADDED_TO_CHILD
@@ -68,7 +68,7 @@ class Event
      * @ORM\Column(type="uuid", unique=true)
      * @ORM\GeneratedValue(strategy="CUSTOM")
      * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
-     * @Groups({"event:read", "group-member:read", "group-member:write"})
+     * @Groups({"event:read", "stream-user:read", "stream-user:write"})
      */
     protected UuidInterface $id;
 
@@ -108,12 +108,12 @@ class Event
     protected User $user;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Group::class, inversedBy="events")
+     * @ORM\ManyToOne(targetEntity=Stream::class, inversedBy="events")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"event:read", "event:write"})
-     * @ApiFilter(SearchFilter::class, properties={"eventGroup.id": "exact"})
+     * @ApiFilter(SearchFilter::class, properties={"stream.id": "exact"})
      */
-    protected Group $eventGroup;
+    protected Stream $stream;
 
     /**
      * @ORM\OneToOne(targetEntity=MessageEventData::class, cascade={"persist", "remove"})
@@ -180,14 +180,14 @@ class Event
         $this->id = $uuid;
     }
 
-    public function getEventGroup(): Group
+    public function getStream(): Stream
     {
-        return $this->eventGroup;
+        return $this->stream;
     }
 
-    public function setEventGroup(Group $eventGroup): void
+    public function setStream(Stream $stream): void
     {
-        $this->eventGroup = $eventGroup;
+        $this->stream = $stream;
     }
 
     public function getUser(): User

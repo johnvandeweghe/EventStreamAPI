@@ -30,7 +30,7 @@ class User implements UserInterface
     /**
      * @ORM\Id()
      * @ORM\Column(type="string", unique=true)
-     * @Groups({"user:read", "group-member:write", "group-member:read", "event:read"})
+     * @Groups({"user:read", "stream-user:write", "stream-user:read", "event:read"})
      */
     protected string $id;
 
@@ -60,9 +60,9 @@ class User implements UserInterface
     public ?string $nickname;
 
     /**
-     * @ORM\OneToMany(targetEntity=GroupMember::class, mappedBy="user", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=StreamUser::class, mappedBy="user", orphanRemoval=true)
      */
-    private $groupMembers;
+    private $streamUsers;
 
     /**
      * @ORM\OneToMany(targetEntity=Event::class, mappedBy="user", orphanRemoval=true)
@@ -72,7 +72,7 @@ class User implements UserInterface
     public function __construct(string $id)
     {
         $this->id = $id;
-        $this->groupMembers = new ArrayCollection();
+        $this->streamUsers = new ArrayCollection();
         $this->events = new ArrayCollection();
     }
 
@@ -82,25 +82,25 @@ class User implements UserInterface
     }
 
     /**
-     * @return GroupMember[]
+     * @return StreamUser[]
      */
-    public function getGroupMembers()
+    public function getStreamUsers()
     {
-        return $this->groupMembers->getValues();
+        return $this->streamUsers->getValues();
     }
 
-    public function addGroupMember(GroupMember $groupMember): void
+    public function addStreamUser(StreamUser $streamUser): void
     {
-        if (!$this->groupMembers->contains($groupMember)) {
-            $this->groupMembers[] = $groupMember;
-            $groupMember->setUser($this);
+        if (!$this->streamUsers->contains($streamUser)) {
+            $this->streamUsers[] = $streamUser;
+            $streamUser->setUser($this);
         }
     }
 
-    public function removeGroupMember(GroupMember $groupMember): void
+    public function removeStreamUser(StreamUser $streamUser): void
     {
-        if ($this->groupMembers->contains($groupMember)) {
-            $this->groupMembers->removeElement($groupMember);
+        if ($this->streamUsers->contains($streamUser)) {
+            $this->streamUsers->removeElement($streamUser);
         }
     }
 
