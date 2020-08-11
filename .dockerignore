@@ -17,3 +17,4 @@
 ###< symfony/phpunit-bridge ###
 .ppm/
 Dockerfile
+infection.log

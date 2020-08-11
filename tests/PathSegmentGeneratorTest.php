@@ -26,4 +26,14 @@ class PathSegmentGeneratorTest extends TestCase
 
         self::assertEquals($expectedUriResource, $segmentGenerator->getSegmentName($className, true));
     }
+
+    public function testGetSegmentNameCamelsCollectionByDefault()
+    {
+        $className = "GlobalTag";
+        $expectedUriResource = "globalTags";
+
+        $segmentGenerator = new PathSegmentGenerator(InflectorFactory::create()->build());
+
+        self::assertEquals($expectedUriResource, $segmentGenerator->getSegmentName($className));
+    }
 }
