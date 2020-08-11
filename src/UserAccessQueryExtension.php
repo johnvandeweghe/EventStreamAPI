@@ -90,7 +90,7 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
         $queryBuilder->leftJoin("$rootAlias.owner", 'os');
-        $queryBuilder->leftJoin("og.streamUsers", 'osu');
+        $queryBuilder->leftJoin("os.streamUsers", 'osu');
 
         //Order of joins here matters, when this was first the osu was broken by the os part being replaced incorrectly.
         $queryBuilder->leftJoin("$rootAlias.streamUsers", 'su');

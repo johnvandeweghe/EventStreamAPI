@@ -33,7 +33,7 @@ class DemoFixtures extends Fixture
         //Extra workspace for access control tests
         $this->createWorkspace($manager, 10, 100, 100);
 
-        $johnsUser = new User("auth0|5eb51dd31cc1ac0c1493050e");
+        $johnsUser = new User("auth0|5f21eafcc13b130228f812b5");
 
         $streamUser1 = new StreamUser();
         $streamUser1->setUser($johnsUser);
@@ -75,6 +75,7 @@ class DemoFixtures extends Fixture
             $user->nickname = $this->faker->firstName;
             $user->name = $user->nickname . " " . $this->faker->lastName;
             $user->email = $this->faker->email;
+            $user->picture = "gravatar";
 
             $streamUserWorkspace = new StreamUser();
             $streamUserWorkspace->setUser($user);
