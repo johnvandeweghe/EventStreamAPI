@@ -38,26 +38,26 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Groups({"user:read", "user:write"})
      */
-    public ?string $name;
+    public ?string $name = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Groups({"user:read", "user:write"})
      * @Assert\Email()
      */
-    public ?string $email;
+    public ?string $email = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Groups({"user:read", "user:write"})
      */
-    public ?string $picture;
+    public ?string $picture = null;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @Groups({"user:read", "user:write"})
      */
-    public ?string $nickname;
+    public ?string $nickname = null;
 
     /**
      * @ORM\OneToMany(targetEntity=StreamUser::class, mappedBy="user", orphanRemoval=true)

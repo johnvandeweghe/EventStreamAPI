@@ -68,10 +68,10 @@ class GuardAuthenticator extends AbstractAuthenticator
             $user->picture = $remoteUser["picture"] ?? null;
             $user->email = $remoteUser["email"] ?? null;
             $entityManager->persist($user);
-        }
 
-        $entityManager->flush();
-        $entityManager->refresh($user);
+            $entityManager->flush();
+            $entityManager->refresh($user);
+        }
 
         return new SelfValidatingPassport($user);
     }
