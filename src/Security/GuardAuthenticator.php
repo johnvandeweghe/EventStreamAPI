@@ -60,7 +60,11 @@ class GuardAuthenticator extends AbstractAuthenticator
         $user = $this->userRepository->find($validatedToken["sub"]);
 
         if(!$user) {
-            $remoteUser = $this->management->users()->get($validatedToken["sub"]);
+            try {
+                $remoteUser = $this->management->users()->get($validatedToken["sub"]);
+            } catch (\Exception $e) {
+                throw new CustomUserMessageAuthenticationException("Unable to talk to auth0 " . $e->getMessage(), [], $e->getCode(), $e);
+            }
 
             $user = new User($validatedToken["sub"]);
             $user->name = $remoteUser["name"] ?? null;

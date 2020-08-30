@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ApiResource(
@@ -21,6 +22,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * )
  * @ORM\Entity(repositoryClass="PostChat\Api\Repository\SubscriptionRepository")
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uq_transport_stream_user", columns={"transport", "stream_user_id"})})
+ * @UniqueEntity(fields={"transport", "streamUser"})
  */
 class Subscription
 {

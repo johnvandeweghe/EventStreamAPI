@@ -10,6 +10,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -38,6 +39,7 @@ use PostChat\Api\Repository\StreamUserRepository;
  *       @ORM\Index(name="idx_user_stream", columns={"user_id", "stream_id"})
  *     }
  * )
+ * @UniqueEntity(fields={"user", "stream"})
  */
 class StreamUser
 {
