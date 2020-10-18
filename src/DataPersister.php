@@ -5,6 +5,7 @@ use ApiPlatform\Core\Bridge\Symfony\Messenger\RemoveStamp;
 use ApiPlatform\Core\DataPersister\DataPersisterInterface;
 use ApiPlatform\Core\DataPersister\ContextAwareDataPersisterInterface;
 use PostChat\Api\Entity\Event;
+use PostChat\Api\Entity\Stream;
 use PostChat\Api\Entity\StreamUser;
 use PostChat\Api\Entity\User;
 use Ramsey\Uuid\Uuid;
@@ -56,6 +57,12 @@ final class DataPersister implements ContextAwareDataPersisterInterface
 
         return $result;
     }
+//
+//    private static function isCreateRequest(array $context): bool
+//    {
+//        return ($context['collection_operation_name'] ?? null) === 'post' ||
+//               ($context['graphql_operation_name'] ?? null) === 'create';
+//    }
 
     public function remove($data, array $context = [])
     {

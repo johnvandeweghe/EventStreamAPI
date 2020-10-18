@@ -7,6 +7,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
 use PostChat\Api\Entity\Event;
+use PostChat\Api\Entity\Role;
 use PostChat\Api\Entity\Stream;
 use PostChat\Api\Entity\StreamUser;
 use PostChat\Api\Entity\Subscription;
@@ -57,6 +58,9 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
         }
 
         switch($resourceClass) {
+            case Role::class:
+                $this->applyUserFilterToQueryBuilderForRole($queryBuilder, $user);
+                break;
             case Stream::class:
                 $this->applyUserFilterToQueryBuilderForStream($queryBuilder, $user, $isCollection);
                 break;
@@ -73,6 +77,24 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
                 $this->applyUserFilterToQueryBuilderForUser($queryBuilder, $user);
                 break;
         }
+    }
+
+    /**
+     * Limits role queries to roles that the user can view.
+     * Users can access roles in streams they are members of.
+     * @param QueryBuilder $queryBuilder
+     * @param UserInterface $user
+     */
+    private function applyUserFilterToQueryBuilderForRole(
+        QueryBuilder $queryBuilder,
+        UserInterface $user
+    ): void {
+        $rootAlias = $queryBuilder->getRootAliases()[0];
+
+        $queryBuilder->innerJoin("$rootAlias.stream", 'rs');
+        $queryBuilder->innerJoin("rs.streamUsers", 'su', Expr\Join::WITH, "su.user = :userId");
+
+        $queryBuilder->setParameter('userId', $user->getUsername());
     }
 
     /**

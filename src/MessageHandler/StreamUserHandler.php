@@ -4,7 +4,7 @@ namespace PostChat\Api\MessageHandler;
 use PostChat\Api\Entity\Event;
 use PostChat\Api\Entity\StreamUser;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Core\Security;
 
@@ -29,6 +29,12 @@ class StreamUserHandler implements MessageHandlerInterface
         }
 
         $deleted = !in_array($streamUser, $streamUser->getUser()->getStreamUsers());
+
+        if(!$deleted) {
+            //Add default user role.
+            $streamUser->addRole($streamUser->getStream()->getDefaultUserRole());
+            //Todo: Add roles user has at parent? Propagate admin rights basically.
+        }
 
         //Log the user joining or leaving the channel (for UI and access logging)
         $event = new Event();

@@ -30,7 +30,7 @@ class User implements UserInterface
     /**
      * @ORM\Id()
      * @ORM\Column(type="string", unique=true)
-     * @Groups({"user:read", "stream-user:write", "stream-user:read", "event:read"})
+     * @Groups({"user:read", "stream-user:create", "stream-user:read", "event:read"})
      */
     protected string $id;
 
@@ -61,6 +61,7 @@ class User implements UserInterface
 
     /**
      * @ORM\OneToMany(targetEntity=StreamUser::class, mappedBy="user", orphanRemoval=true)
+     * @var StreamUser[]
      */
     private $streamUsers;
 
@@ -79,6 +80,17 @@ class User implements UserInterface
     public function getId(): string
     {
         return $this->id;
+    }
+
+    public function getStreamUserForStream(Stream $stream): ?StreamUser
+    {
+        foreach($this->streamUsers as $streamUser) {
+            if($streamUser->getStream()->getId() === $stream->getId()) {
+                return $streamUser;
+            }
+        }
+
+        return null;
     }
 
     /**

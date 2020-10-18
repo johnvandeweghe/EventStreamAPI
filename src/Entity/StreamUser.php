@@ -18,11 +18,17 @@ use PostChat\Api\Repository\StreamUserRepository;
 
 /**
  * @ApiResource(
- *     collectionOperations={"get","post"},
+ *     collectionOperations={
+ *         "get",
+ *         "post"={
+ *             "security_post_denormalize"="is_granted('STREAM_JOIN', object)",
+ *             "denormalization_context"={"groups"={"stream-user:create"}}
+ *         }
+ *     },
  *     itemOperations={
  *         "get",
- *         "patch"={"security"="object.user == user"},
- *         "delete"={"security"="object.user == user"}
+ *         "patch"={"security"="object.getUser() == user"},
+ *         "delete"={"security"="object.getUser() == user"}
  *     },
  *     normalizationContext={
  *         "groups"={"stream-user:read"},
@@ -34,9 +40,9 @@ use PostChat\Api\Repository\StreamUserRepository;
  * @ORM\Table(
  *     uniqueConstraints={@ORM\UniqueConstraint(name="uq_stream_user", columns={"user_id", "stream_id"})},
  *     indexes={
- *       @ORM\Index(name="idx_stream_id", columns={"stream_id"}),
- *       @ORM\Index(name="idx_user_id", columns={"user_id"}),
- *       @ORM\Index(name="idx_user_stream", columns={"user_id", "stream_id"})
+ *       @ORM\Index(name="idx_su_stream_id", columns={"stream_id"}),
+ *       @ORM\Index(name="idx_su_user_id", columns={"user_id"}),
+ *       @ORM\Index(name="idx_su_user_stream", columns={"user_id", "stream_id"})
  *     }
  * )
  * @UniqueEntity(fields={"user", "stream"})
@@ -56,7 +62,7 @@ class StreamUser
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="streamUsers")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"stream-user:read", "stream-user:write"})
+     * @Groups({"stream-user:read", "stream-user:create"})
      * @ApiFilter(SearchFilter::class, properties={"user.id": "exact"})
      * @ApiProperty(push=true)
      */
@@ -65,10 +71,10 @@ class StreamUser
     /**
      * @ORM\ManyToOne(targetEntity=Stream::class, inversedBy="streamUsers")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"stream-user:read", "stream-user:write"})
+     * @Groups({"stream-user:read", "stream-user:create"})
      * @ApiFilter(SearchFilter::class, properties={"stream.id": "exact"})
      */
-    protected $stream;
+    protected Stream $stream;
 
     /**
      * @ORM\OneToMany(targetEntity=Subscription::class, mappedBy="streamUser", orphanRemoval=true)
@@ -80,11 +86,24 @@ class StreamUser
      * @ORM\ManyToOne(targetEntity=Event::class)
      * @Groups({"stream-user:read", "stream-user:write"})
      */
-    protected $lastSeenEvent;
+    protected ?Event $lastSeenEvent;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Role::class)
+     * @Groups({"stream-user:read"})
+     */
+    protected $roles;
+
+    /**
+     * @ORM\OneToOne(targetEntity=Invite::class, inversedBy="invitedStreamUser", cascade={"persist", "remove"})
+     * @Groups({"stream-user:create"})
+     */
+    protected ?Invite $invite = null;
 
     public function __construct()
     {
         $this->subscriptions = new ArrayCollection();
+        $this->roles = new ArrayCollection();
     }
 
     public function getId(): UuidInterface
@@ -147,5 +166,52 @@ class StreamUser
     public function setLastSeenEvent(?Event $lastSeenEvent): void
     {
         $this->lastSeenEvent = $lastSeenEvent;
+    }
+
+    public function hasPermission(string $permission): bool
+    {
+        foreach($this->getRoles() as $role) {
+            if($role->hasPermission($permission)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return Collection|Role[]
+     */
+    public function getRoles(): Collection
+    {
+        return $this->roles;
+    }
+
+    public function addRole(Role $role): self
+    {
+        if (!$this->roles->contains($role)) {
+            $this->roles[] = $role;
+        }
+
+        return $this;
+    }
+
+    public function removeRole(Role $role): self
+    {
+        if ($this->roles->contains($role)) {
+            $this->roles->removeElement($role);
+        }
+
+        return $this;
+    }
+
+    public function getInvite(): ?Invite
+    {
+        return $this->invite;
+    }
+
+    public function setInvite(?Invite $invite): void
+    {
+        $this->invite = $invite;
     }
 }

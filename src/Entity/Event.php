@@ -15,6 +15,7 @@ use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
+ * TODO={"security"="user.getSreamUserForStream(object.stream).hasPermission('stream:write')"}
  * @ApiResource(
  *     collectionOperations={"get","post"},
  *     itemOperations={"get"},
@@ -26,8 +27,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * )
  * @ORM\Entity(repositoryClass="PostChat\Api\Repository\EventRepository")
  * @ORM\Table(indexes={
- *     @ORM\Index(name="idx_stream_datetime", columns={"stream_id", "datetime"}),
- *     @ORM\Index(name="idx_stream_user_datetime", columns={"stream_id", "user_id", "datetime"})
+ *     @ORM\Index(name="idx_e_stream_datetime", columns={"stream_id", "datetime"}),
+ *     @ORM\Index(name="idx_e_stream_user_datetime", columns={"stream_id", "user_id", "datetime"})
  * })
  */
 class Event

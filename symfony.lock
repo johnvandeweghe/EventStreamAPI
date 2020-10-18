@@ -19,6 +19,9 @@
     "auth0/auth0-php": {
         "version": "7.2.0"
     },
+    "brick/math": {
+        "version": "0.9.1"
+    },
     "composer/xdebug-handler": {
         "version": "1.4.1"
     },
@@ -291,6 +294,9 @@
     "ralouphie/getallheaders": {
         "version": "3.0.3"
     },
+    "ramsey/collection": {
+        "version": "1.1.1"
+    },
     "ramsey/uuid": {
         "version": "4.0.1"
     },
@@ -479,6 +485,9 @@
     "symfony/options-resolver": {
         "version": "v5.1.1"
     },
+    "symfony/orm-pack": {
+        "version": "v1.0.8"
+    },
     "symfony/phpunit-bridge": {
         "version": "4.3",
         "recipe": {
@@ -567,6 +576,9 @@
     },
     "symfony/serializer": {
         "version": "v5.0.8"
+    },
+    "symfony/serializer-pack": {
+        "version": "v1.0.3"
     },
     "symfony/service-contracts": {
         "version": "v2.0.1"

@@ -88,32 +88,18 @@ class GuardAuthenticatorTest extends TestCase
         $authenticator->authenticate($request);
     }
 
-    public function testThrowsAuthenticationExceptionWhenEntityManagerNotFound()
-    {
-        $tokenVerifier = $this->getMockBuilder(TokenVerifier::class)->disableOriginalConstructor()->getMock();
-        $mangerRegistry = $this->getMockBuilder(ManagerRegistry::class)->disableOriginalConstructor()->getMock();
-        $userRepository = $this->getMockBuilder(UserRepository::class)->disableOriginalConstructor()->getMock();
-        $management = $this->getMockBuilder(Management::class)->disableOriginalConstructor()->getMock();
-        $tokenVerifier->method('verify')->willReturn([]);
-
-        $authenticator = new GuardAuthenticator($tokenVerifier, $mangerRegistry, $userRepository, $management);
-
-        $request = Request::create('/', Request::METHOD_GET, [], [], [], [
-            'HTTP_AUTHORIZATION' => "Bearer anytoken"
-        ]);
-
-        $mangerRegistry->expects(self::once())->method('getManagerForClass')->with(User::class)
-            ->willReturn(null);
-
-        $this->expectException(AuthenticationException::class);
-
-        $authenticator->authenticate($request);
-    }
-
     public function testCreatesUserWithFieldsFromAuth0()
     {
         $validatedToken = [
             'sub' => 'mock|er4ewuoth432',
+            'name' => 'John Tester',
+            'nickname' => 'John',
+            'picture' => 'base64:asdweirfweiurth==',
+            'email' => 'john@getpostchat.com'
+        ];
+
+        $auth0User = [
+            'user_id' => 'mock|er4ewuoth432',
             'name' => 'John Tester',
             'nickname' => 'John',
             'picture' => 'base64:asdweirfweiurth==',
@@ -139,7 +125,7 @@ class GuardAuthenticatorTest extends TestCase
         $userRepository->expects(self::once())->method('find')->with($validatedToken['sub'])->willReturn(null);
 
         $management->expects(self::once())->method('users')->willReturn($users);
-        $users->expects(self::once())->method('get')->with($validatedToken['sub'])->willReturn($validatedToken);
+        $users->expects(self::once())->method('get')->with($validatedToken['sub'])->willReturn($auth0User);
 
         $entityManager->expects(self::once())->method('persist')->willReturnCallback(function($user) use ($validatedToken) {
            self::assertEquals(User::class, get_class($user));

@@ -2,13 +2,14 @@
 namespace PostChat\Api\MessageHandler;
 
 use PostChat\Api\Entity\Event;
+use PostChat\Api\Entity\Role;
 use PostChat\Api\Entity\Stream;
 use PostChat\Api\Entity\StreamUser;
 use PostChat\Api\Entity\User;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Core\Security;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 class StreamHandler implements MessageHandlerInterface
 {
@@ -25,11 +26,12 @@ class StreamHandler implements MessageHandlerInterface
 
     public function __invoke(Stream $stream)
     {
-        $manager = $this->managerRegistry->getManagerForClass(get_class($stream));
+        $manager = $this->managerRegistry->getManagerForClass(Stream::class);
         /**
          * @var $user User
          */
         if(!$manager || !($user = $this->security->getUser()) || $stream->hasUser($user)){
+            //Prevent triggering new stream behavior again, assume if the user is already in it it must be update event.
             return;
         }
 
@@ -37,22 +39,81 @@ class StreamHandler implements MessageHandlerInterface
         $streamUser->setUser($user);
         $stream->addStreamUser($streamUser);
 
+        self::setDefaultRoles($stream);
+
+        $streamUser->addRole($stream->getDefaultCreatorRole());
+
         $manager->persist($streamUser);
         $manager->persist($stream);
 
         //Alert the parent stream that there is a new child to live update stream lists
         if($stream->discoverable && ($owner = $stream->getOwner())) {
-            $streamAddedEvent = Event::createEphemeralEvent();
-            $streamAddedEvent->setStream($owner);
-            $streamAddedEvent->setUser($user);
-            $streamAddedEvent->type = Event::TYPE_CHILD_STREAM_CREATED;
-
-            $this->messageBus->dispatch($streamAddedEvent);
+            $this->alertParentOfNewChild($owner, $user);
         }
 
         $manager->flush();
         $manager->refresh($streamUser);
 
         $this->messageBus->dispatch($streamUser);
+    }
+
+    /**
+     * @param Stream $stream
+     */
+    protected static function setDefaultRoles(Stream $stream): void
+    {
+        if ($owner = $stream->getOwner()) {
+            $stream->setDefaultCreatorRole($owner->getDefaultCreatorRole());
+            $stream->setDefaultUserRole($owner->getDefaultUserRole());
+            $stream->setDefaultBotRole($owner->getDefaultBotRole());
+        } else {
+            //Create new default roles for this root stream
+            $adminRole = new Role();
+            $adminRole->name = "Admin";
+            $adminRole->streamArchive = true;
+            $adminRole->streamCreate = true;
+            $adminRole->streamRoles = true;
+            $adminRole->streamEdit = true;
+            $adminRole->streamAccess = true;
+            $adminRole->streamInvite = true;
+            $adminRole->streamJoin = true;
+            $adminRole->streamWrite = true;
+            $adminRole->streamRead = true;
+
+            $userRole = new Role();
+            $userRole->name = "User";
+            $userRole->streamCreate = true;
+            $userRole->streamJoin = true;
+            $userRole->streamWrite = true;
+            $userRole->streamRead = true;
+
+            $botRole = new Role();
+            $botRole->name = "Bot";
+            $botRole->streamCreate = true;
+            $botRole->streamWrite = true;
+            $botRole->streamRead = true;
+
+            $stream->addRole($adminRole);
+            $stream->addRole($userRole);
+            $stream->addRole($botRole);
+
+            $stream->setDefaultCreatorRole($adminRole);
+            $stream->setDefaultUserRole($userRole);
+            $stream->setDefaultBotRole($botRole);
+        }
+    }
+
+    /**
+     * @param Stream|null $owner
+     * @param User $user
+     */
+    protected function alertParentOfNewChild(Stream $owner, User $user): void
+    {
+        $streamAddedEvent = Event::createEphemeralEvent();
+        $streamAddedEvent->setStream($owner);
+        $streamAddedEvent->setUser($user);
+        $streamAddedEvent->type = Event::TYPE_CHILD_STREAM_CREATED;
+
+        $this->messageBus->dispatch($streamAddedEvent);
     }
 }

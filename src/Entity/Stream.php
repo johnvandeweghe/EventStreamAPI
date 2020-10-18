@@ -36,10 +36,10 @@ use PostChat\Api\Repository\StreamRepository;
  * )
  * @ORM\Entity(repositoryClass=StreamRepository::class)
  * @ORM\Table(name="`stream`", indexes={
- *     @ORM\Index(name="idx_stream_owner", columns={"owner_id"}),
- *     @ORM\Index(name="idx_stream_owner_name", columns={"owner_id", "name"}),
- *     @ORM\Index(name="idx_stream_owner_disc", columns={"owner_id", "discoverable"}),
- *     @ORM\Index(name="idx_stream_owner_disc_name", columns={"owner_id", "discoverable", "name"})
+ *     @ORM\Index(name="idx_s_stream_owner", columns={"owner_id"}),
+ *     @ORM\Index(name="idx_s_stream_owner_name", columns={"owner_id", "name"}),
+ *     @ORM\Index(name="idx_s_stream_owner_disc", columns={"owner_id", "discoverable"}),
+ *     @ORM\Index(name="idx_s_stream_owner_disc_name", columns={"owner_id", "discoverable", "name"})
  * })
  * Indexes:
  * - find children streams
@@ -54,7 +54,7 @@ class Stream
      * @ORM\Column(type="uuid", unique=true)
      * @ORM\GeneratedValue(strategy="CUSTOM")
      * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
-     * @Groups({"stream:read", "stream:create", "event:read", "event:write", "stream-user:read", "stream-user:write"})
+     * @Groups({"stream:read", "stream:create", "event:read", "event:write", "stream-user:read", "stream-user:create", "role:read", "role:create", "invite:write", "invite:read"})
      * @Assert\Uuid
      */
     protected UuidInterface $id;
@@ -80,6 +80,7 @@ class Stream
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"stream:read", "stream:create", "stream:update"})
      */
     public bool $private = false;
 
@@ -109,11 +110,38 @@ class Stream
      */
     private $events;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Role::class, mappedBy="stream", orphanRemoval=true, cascade={"persist"})
+     */
+    private $roles;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Role::class)
+     * @ORM\JoinColumn(nullable=true)
+     * @Groups({"stream:read", "stream:update"})
+     */
+    private ?Role $defaultUserRole;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Role::class)
+     * @ORM\JoinColumn(nullable=true)
+     * @Groups({"stream:read", "stream:update"})
+     */
+    private ?Role $defaultCreatorRole;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Role::class)
+     * @ORM\JoinColumn(nullable=true)
+     * @Groups({"stream:read", "stream:update"})
+     */
+    private ?Role $defaultBotRole;
+
     public function __construct()
     {
         $this->subStreams = new ArrayCollection();
         $this->streamUsers = new ArrayCollection();
         $this->events = new ArrayCollection();
+        $this->roles = new ArrayCollection();
     }
 
     public function getId(): UuidInterface
@@ -208,5 +236,58 @@ class Stream
         if ($this->events->contains($event)) {
             $this->events->removeElement($event);
         }
+    }
+
+    /**
+     * @return Collection|Role[]
+     */
+    public function getRoles(): Collection
+    {
+        return $this->roles;
+    }
+
+    public function addRole(Role $role): void
+    {
+        if (!$this->roles->contains($role)) {
+            $this->roles[] = $role;
+            $role->setStream($this);
+        }
+    }
+
+    public function removeRole(Role $role): void
+    {
+        if ($this->roles->contains($role)) {
+            $this->roles->removeElement($role);
+        }
+    }
+
+    public function getDefaultUserRole(): ?Role
+    {
+        return $this->defaultUserRole;
+    }
+
+    public function setDefaultUserRole(?Role $defaultUserRole): void
+    {
+        $this->defaultUserRole = $defaultUserRole;
+    }
+
+    public function getDefaultCreatorRole(): ?Role
+    {
+        return $this->defaultCreatorRole;
+    }
+
+    public function setDefaultCreatorRole(?Role $defaultCreatorRole): void
+    {
+        $this->defaultCreatorRole = $defaultCreatorRole;
+    }
+
+    public function getDefaultBotRole(): ?Role
+    {
+        return $this->defaultBotRole;
+    }
+
+    public function setDefaultBotRole(?Role $defaultBotRole): void
+    {
+        $this->defaultBotRole = $defaultBotRole;
     }
 }
