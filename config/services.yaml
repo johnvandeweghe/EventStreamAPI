@@ -38,3 +38,9 @@ services:
 
     Doctrine\Inflector\Inflector:
         factory: ['@doctrine.inflector.factory', 'build']
+
+    PostChat\Api\Security\TokenVerifier:
+        arguments:
+            $jwksUri: "%env(JWKS_URI)%"
+            $issuer: "%env(JWT_ISSUER)%"
+            $audience: "%env(JWT_AUDIENCE)%"

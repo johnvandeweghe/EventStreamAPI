@@ -2,7 +2,7 @@ FROM composer:latest as composer
 
 RUN mkdir /ppm && cd /ppm && composer require php-pm/httpkernel-adapter:dev-master
 
-FROM php:7.4-cli
+FROM php:8.0-cli
 
 RUN apt-get update && apt-get install -y libpq-dev libicu-dev \
     && docker-php-ext-install intl pdo_pgsql pcntl opcache \

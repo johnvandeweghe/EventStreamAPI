@@ -1,9 +1,6 @@
 <?php
 namespace PostChat\Api\Security;
 
-use Auth0\SDK\API\Management;
-use Auth0\SDK\Exception\InvalidTokenException;
-use Auth0\SDK\Helpers\Tokens\TokenVerifier;
 use Doctrine\ORM\EntityManager;
 use PHPUnit\Framework\TestCase;
 use PostChat\Api\Entity\User;
@@ -22,9 +19,8 @@ class GuardAuthenticatorTest extends TestCase
         $tokenVerifier = $this->getMockBuilder(TokenVerifier::class)->disableOriginalConstructor()->getMock();
         $mangerRegistry = $this->getMockBuilder(ManagerRegistry::class)->disableOriginalConstructor()->getMock();
         $userRepository = $this->getMockBuilder(UserRepository::class)->disableOriginalConstructor()->getMock();
-        $management = $this->getMockBuilder(Management::class)->disableOriginalConstructor()->getMock();
 
-        $authenticator = new GuardAuthenticator($tokenVerifier, $mangerRegistry, $userRepository, $management);
+        $authenticator = new GuardAuthenticator($tokenVerifier, $mangerRegistry, $userRepository);
 
         $request = Request::create('/', Request::METHOD_GET);
 
@@ -36,9 +32,8 @@ class GuardAuthenticatorTest extends TestCase
         $tokenVerifier = $this->getMockBuilder(TokenVerifier::class)->disableOriginalConstructor()->getMock();
         $mangerRegistry = $this->getMockBuilder(ManagerRegistry::class)->disableOriginalConstructor()->getMock();
         $userRepository = $this->getMockBuilder(UserRepository::class)->disableOriginalConstructor()->getMock();
-        $management = $this->getMockBuilder(Management::class)->disableOriginalConstructor()->getMock();
 
-        $authenticator = new GuardAuthenticator($tokenVerifier, $mangerRegistry, $userRepository, $management);
+        $authenticator = new GuardAuthenticator($tokenVerifier, $mangerRegistry, $userRepository);
 
         $request = Request::create('/', Request::METHOD_GET, [], [], [], [
             'HTTP_AUTHORIZATION' => "this is not a bearer token"
@@ -52,9 +47,8 @@ class GuardAuthenticatorTest extends TestCase
         $tokenVerifier = $this->getMockBuilder(TokenVerifier::class)->disableOriginalConstructor()->getMock();
         $mangerRegistry = $this->getMockBuilder(ManagerRegistry::class)->disableOriginalConstructor()->getMock();
         $userRepository = $this->getMockBuilder(UserRepository::class)->disableOriginalConstructor()->getMock();
-        $management = $this->getMockBuilder(Management::class)->disableOriginalConstructor()->getMock();
 
-        $authenticator = new GuardAuthenticator($tokenVerifier, $mangerRegistry, $userRepository, $management);
+        $authenticator = new GuardAuthenticator($tokenVerifier, $mangerRegistry, $userRepository);
 
         $request = Request::create('/', Request::METHOD_GET, [], [], [], [
             'HTTP_AUTHORIZATION' => "Bearer opaquetoken"
@@ -70,9 +64,8 @@ class GuardAuthenticatorTest extends TestCase
         $tokenVerifier = $this->getMockBuilder(TokenVerifier::class)->disableOriginalConstructor()->getMock();
         $mangerRegistry = $this->getMockBuilder(ManagerRegistry::class)->disableOriginalConstructor()->getMock();
         $userRepository = $this->getMockBuilder(UserRepository::class)->disableOriginalConstructor()->getMock();
-        $management = $this->getMockBuilder(Management::class)->disableOriginalConstructor()->getMock();
 
-        $authenticator = new GuardAuthenticator($tokenVerifier, $mangerRegistry, $userRepository, $management);
+        $authenticator = new GuardAuthenticator($tokenVerifier, $mangerRegistry, $userRepository);
 
         $token = "this is an arbitrary token";
 
@@ -83,49 +76,36 @@ class GuardAuthenticatorTest extends TestCase
         $this->expectException(CustomUserMessageAuthenticationException::class);
 
         $tokenVerifier->expects(self::once())->method('verify')->with($token)
-            ->willThrowException(new InvalidTokenException());
+            ->willThrowException(new \RuntimeException());
 
         $authenticator->authenticate($request);
     }
 
-    public function testCreatesUserWithFieldsFromAuth0()
+    public function testCreatesUserWithFieldsFromJWT()
     {
         $validatedToken = [
-            'sub' => 'mock|er4ewuoth432',
-            'name' => 'John Tester',
-            'nickname' => 'John',
-            'picture' => 'base64:asdweirfweiurth==',
-            'email' => 'john@getpostchat.com'
+            'sub' => 'mock|er4ewuoth432'
         ];
 
-        $auth0User = [
-            'user_id' => 'mock|er4ewuoth432',
-            'name' => 'John Tester',
-            'nickname' => 'John',
-            'picture' => 'base64:asdweirfweiurth==',
-            'email' => 'john@getpostchat.com'
+        $jwtUser = [
+            'user_id' => 'mock|er4ewuoth432'
         ];
 
         $tokenVerifier = $this->getMockBuilder(TokenVerifier::class)->disableOriginalConstructor()->getMock();
         $mangerRegistry = $this->getMockBuilder(ManagerRegistry::class)->disableOriginalConstructor()->getMock();
         $userRepository = $this->getMockBuilder(UserRepository::class)->disableOriginalConstructor()->setMethods(['find'])->getMock();
         $entityManager = $this->getMockBuilder(EntityManager::class)->disableOriginalConstructor()->getMock();
-        $management = $this->getMockBuilder(Management::class)->disableOriginalConstructor()->getMock();
-        $users = $this->getMockBuilder(Management\Users::class)->disableOriginalConstructor()->getMock();
         $tokenVerifier->method('verify')->willReturn($validatedToken);
         $mangerRegistry->method('getManagerForClass')->with(User::class)->willReturn($entityManager);
 
 
-        $authenticator = new GuardAuthenticator($tokenVerifier, $mangerRegistry, $userRepository, $management);
+        $authenticator = new GuardAuthenticator($tokenVerifier, $mangerRegistry, $userRepository);
 
         $request = Request::create('/', Request::METHOD_GET, [], [], [], [
             'HTTP_AUTHORIZATION' => "Bearer anytoken"
         ]);
 
         $userRepository->expects(self::once())->method('find')->with($validatedToken['sub'])->willReturn(null);
-
-        $management->expects(self::once())->method('users')->willReturn($users);
-        $users->expects(self::once())->method('get')->with($validatedToken['sub'])->willReturn($auth0User);
 
         $entityManager->expects(self::once())->method('persist')->willReturnCallback(function($user) use ($validatedToken) {
            self::assertEquals(User::class, get_class($user));
@@ -144,21 +124,12 @@ class GuardAuthenticatorTest extends TestCase
         $user = $passport->getUser();
         self::assertEquals($validatedToken['sub'], $user->getUsername());
         self::assertInstanceOf(User::class, $user);
-        /** @var $user User */
-        self::assertEquals($validatedToken['name'], $user->name);
-        self::assertEquals($validatedToken['nickname'], $user->nickname);
-        self::assertEquals($validatedToken['picture'], $user->picture);
-        self::assertEquals($validatedToken['email'], $user->email);
     }
 
     public function testDoesntUpdateUserIfFound()
     {
         $validatedToken = [
-            'sub' => 'mock|er4ewuoth432',
-            'name' => 'John Tester',
-            'nickname' => 'John',
-            'picture' => 'base64:asdweirfweiurth==',
-            'email' => 'john@getpostchat.com'
+            'sub' => 'mock|er4ewuoth432'
         ];
 
         $expectedUser = new User($validatedToken['sub']);
@@ -167,12 +138,11 @@ class GuardAuthenticatorTest extends TestCase
         $mangerRegistry = $this->getMockBuilder(ManagerRegistry::class)->disableOriginalConstructor()->getMock();
         $userRepository = $this->getMockBuilder(UserRepository::class)->disableOriginalConstructor()->setMethods(['find'])->getMock();
         $entityManager = $this->getMockBuilder(EntityManager::class)->disableOriginalConstructor()->getMock();
-        $management = $this->getMockBuilder(Management::class)->disableOriginalConstructor()->getMock();
         $tokenVerifier->method('verify')->willReturn($validatedToken);
         $mangerRegistry->method('getManagerForClass')->with(User::class)->willReturn($entityManager);
 
 
-        $authenticator = new GuardAuthenticator($tokenVerifier, $mangerRegistry, $userRepository, $management);
+        $authenticator = new GuardAuthenticator($tokenVerifier, $mangerRegistry, $userRepository);
 
         $request = Request::create('/', Request::METHOD_GET, [], [], [], [
             'HTTP_AUTHORIZATION' => "Bearer anytoken"
@@ -194,9 +164,8 @@ class GuardAuthenticatorTest extends TestCase
         $tokenVerifier = $this->getMockBuilder(TokenVerifier::class)->disableOriginalConstructor()->getMock();
         $mangerRegistry = $this->getMockBuilder(ManagerRegistry::class)->disableOriginalConstructor()->getMock();
         $userRepository = $this->getMockBuilder(UserRepository::class)->disableOriginalConstructor()->getMock();
-        $management = $this->getMockBuilder(Management::class)->disableOriginalConstructor()->getMock();
 
-        $authenticator = new GuardAuthenticator($tokenVerifier, $mangerRegistry, $userRepository, $management);
+        $authenticator = new GuardAuthenticator($tokenVerifier, $mangerRegistry, $userRepository);
 
         $request = new Request();
 

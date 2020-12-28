@@ -1,6 +1,6 @@
 FROM composer:latest as composer
 
-RUN mkdir /ppm && cd /ppm && composer require php-pm/httpkernel-adapter:2.0.6
+RUN mkdir /ppm && cd /ppm && composer require php-pm/httpkernel-adapter:2.2.0
 
 RUN mkdir /application
 
@@ -12,7 +12,7 @@ COPY symfony.lock /application/symfony.lock
 
 RUN cd /application && composer install -o --no-dev --no-scripts
 
-FROM php:7.4-cli
+FROM php:8.0-cli
 
 RUN apt-get update && apt-get install -y libpq-dev libicu-dev \
     && docker-php-ext-install intl pdo_pgsql pcntl opcache \
