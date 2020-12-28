@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *         "groups"={"user:read"},
  *         "skip_null_values" = false
  *     },
- *     denormalizationContext={"groups"={"user:write"}},
+ *     denormalizationContext={},
  *     attributes={}
  * )
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -33,31 +33,6 @@ class User implements UserInterface
      * @Groups({"user:read", "stream-user:create", "stream-user:read", "event:read"})
      */
     protected string $id;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:read", "user:write"})
-     */
-    public ?string $name = null;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:read", "user:write"})
-     * @Assert\Email()
-     */
-    public ?string $email = null;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:read", "user:write"})
-     */
-    public ?string $picture = null;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user:read", "user:write"})
-     */
-    public ?string $nickname = null;
 
     /**
      * @ORM\OneToMany(targetEntity=StreamUser::class, mappedBy="user", orphanRemoval=true)

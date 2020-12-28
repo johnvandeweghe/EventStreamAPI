@@ -5,7 +5,6 @@ namespace PostChat\Api\DataFixtures;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Generator;
-use Interop\Queue\Context;
 use PostChat\Api\Entity\Event;
 use PostChat\Api\Entity\Stream;
 use PostChat\Api\Entity\StreamUser;
@@ -15,12 +14,10 @@ use PostChat\Api\Entity\User;
 
 class DemoFixtures extends Fixture
 {
-    private Context $context;
     private Generator $faker;
 
-    public function __construct(Context $context)
+    public function __construct()
     {
-        $this->context = $context;
         $this->faker = \Faker\Factory::create();
     }
 
@@ -48,8 +45,6 @@ class DemoFixtures extends Fixture
         $manager->persist($streamUser2);
 
         $manager->flush();
-
-        $this->context->declareTopic($this->context->createTopic("transport-pusher"));
     }
 
     protected function createWorkspace(

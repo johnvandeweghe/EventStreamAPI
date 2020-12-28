@@ -1,9 +1,6 @@
 <?php
 namespace PostChat\Api\Security;
 
-use Auth0\SDK\API\Management;
-use Auth0\SDK\Exception\InvalidTokenException;
-use Auth0\SDK\Helpers\Tokens\TokenVerifier;
 use PostChat\Api\Entity\User;
 use PostChat\Api\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,22 +15,11 @@ use Symfony\Component\Security\Http\Authenticator\Passport\UserPassportInterface
 
 class GuardAuthenticator extends AbstractAuthenticator
 {
-    private TokenVerifier $tokenVerifier;
-    private ManagerRegistry $managerRegistry;
-    private UserRepository $userRepository;
-    private Management $management;
-
     public function __construct(
-        TokenVerifier $tokenVerifier,
-        ManagerRegistry $managerRegistry,
-        UserRepository $userRepository,
-        Management $management
-    ) {
-        $this->tokenVerifier = $tokenVerifier;
-        $this->managerRegistry = $managerRegistry;
-        $this->userRepository = $userRepository;
-        $this->management = $management;
-    }
+        private TokenVerifier $tokenVerifier,
+        private ManagerRegistry $managerRegistry,
+        private UserRepository $userRepository
+    ) {}
 
     public function supports(Request $request): ?bool
     {
@@ -47,26 +33,20 @@ class GuardAuthenticator extends AbstractAuthenticator
 
         try {
             $validatedToken = $this->tokenVerifier->verify($token);
-        } catch (InvalidTokenException $exception) {
+        } catch (\Throwable $exception) {
             throw new CustomUserMessageAuthenticationException("Unable to validate JWT: " . $exception->getMessage(), [], $exception->getCode(), $exception);
         }
 
         $user = $this->userRepository->find($validatedToken["sub"]);
 
         if(!$user) {
-            try {
-                $remoteUser = $this->management->users()->get($validatedToken["sub"]);
-            } catch (\Exception $e) {
-                throw new CustomUserMessageAuthenticationException("Unable to talk to auth0 " . $e->getMessage(), [], $e->getCode(), $e);
-            }
-
-            $user = $this->createUserFromAuth0User($remoteUser);
+            $user = $this->createUserFromRemoteUser($validatedToken["sub"]);
         }
 
         return new SelfValidatingPassport($user);
     }
 
-    private function createUserFromAuth0User($remoteUser): User
+    private function createUserFromRemoteUser($tokenSubject): User
     {
         $entityManager = $this->managerRegistry->getManagerForClass(User::class);
 
@@ -75,11 +55,7 @@ class GuardAuthenticator extends AbstractAuthenticator
             throw new \RuntimeException("Internal server error.");
         }
 
-        $user = new User($remoteUser["user_id"]);
-        $user->name = $remoteUser["name"] ?? null;
-        $user->nickname = $remoteUser["nickname"] ?? null;
-        $user->picture = $remoteUser["picture"] ?? null;
-        $user->email = $remoteUser["email"] ?? null;
+        $user = new User($tokenSubject);
         $entityManager->persist($user);
 
         $entityManager->flush();
