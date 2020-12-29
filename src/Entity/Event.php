@@ -1,14 +1,16 @@
 <?php
 
-namespace PostChat\Api\Entity;
+namespace EventStreamApi\Entity;
 
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\ORM\Mapping as ORM;
-use PostChat\Api\Entity\EventData\CommandEventData;
-use PostChat\Api\Entity\EventData\MessageEventData;
+use EventStreamApi\Entity\EventData\CommandEventData;
+use EventStreamApi\Entity\EventData\MarkerEventData;
+use EventStreamApi\Entity\EventData\MessageEventData;
+use EventStreamApi\Repository\EventRepository;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Ramsey\Uuid\UuidInterface;
@@ -25,7 +27,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     denormalizationContext={"groups"={"event:write"}},
  *     attributes={"order"={"datetime": "DESC"},"validation_groups"={Event::class, "validationGroups"}}
  * )
- * @ORM\Entity(repositoryClass="PostChat\Api\Repository\EventRepository")
+ * @ORM\Entity(repositoryClass=EventRepository::class)
  * @ORM\Table(indexes={
  *     @ORM\Index(name="idx_e_stream_datetime", columns={"stream_id", "datetime"}),
  *     @ORM\Index(name="idx_e_stream_user_datetime", columns={"stream_id", "user_id", "datetime"})
@@ -34,32 +36,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Event
 {
     public const TYPE_MESSAGE               = "message";
-    public const TYPE_COMMAND               = "command";
-    public const TYPE_TYPING_START          = "typing-start";
-    public const TYPE_TYPING_STOP           = "typing-stop";
-    public const TYPE_CHILD_STREAM_CREATED  = "stream-created";
-    public const TYPE_USER_JOINED           = "user-joined";
-    public const TYPE_USER_LEFT             = "user-left";
-    public const TYPE_USER_UPDATED          = "user-updated";
-    public const TYPE_USER_ADDED_TO_CHILD   = "user-added-to-child";
+    public const TYPE_MARKER                = "marker";
 
-    public const EPHEMERAL_TYPES = [
-        self::TYPE_TYPING_START,
-        self::TYPE_TYPING_STOP,
-        self::TYPE_CHILD_STREAM_CREATED,
-        self::TYPE_USER_ADDED_TO_CHILD,
-        self::TYPE_USER_UPDATED
-    ];
 
     public const TYPES = [
         self::TYPE_MESSAGE,
-        self::TYPE_COMMAND,
-        self::TYPE_TYPING_START,
-        self::TYPE_TYPING_STOP,
-        self::TYPE_CHILD_STREAM_CREATED,
-        self::TYPE_USER_JOINED,
-        self::TYPE_USER_LEFT,
-        self::TYPE_USER_ADDED_TO_CHILD
+        self::TYPE_MARKER
     ];
 
     public const VALIDATION_DEFAULT = "Default";
@@ -86,8 +68,7 @@ class Event
      * @Assert\NotBlank(groups={
      *     Event::VALIDATION_DEFAULT,
      *     Event::TYPE_MESSAGE,
-     *     Event::TYPE_COMMAND,
-     *     Event::TYPE_USER_UPDATED
+     *     Event::TYPE_MARKER
      * })
      * @ApiProperty(
      *     attributes={
@@ -120,17 +101,17 @@ class Event
      * @ORM\OneToOne(targetEntity=MessageEventData::class, cascade={"persist", "remove"})
      * @Groups({"event:read", "event:write"})
      * @Assert\NotBlank(groups={Event::TYPE_MESSAGE})
-     * @Assert\IsNull(groups={Event::VALIDATION_DEFAULT, Event::TYPE_COMMAND})
+     * @Assert\IsNull(groups={Event::VALIDATION_DEFAULT, Event::TYPE_MARKER})
      */
     protected ?MessageEventData $messageEventData = null;
 
     /**
-     * @ORM\OneToOne(targetEntity=CommandEventData::class, cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=MarkerEventData::class, cascade={"persist", "remove"})
      * @Groups({"event:read", "event:write"})
-     * @Assert\NotBlank(groups={Event::TYPE_COMMAND})
+     * @Assert\NotBlank(groups={Event::TYPE_MARKER})
      * @Assert\IsNull(groups={Event::VALIDATION_DEFAULT, Event::TYPE_MESSAGE})
      */
-    protected ?CommandEventData $commandEventData = null;
+    protected ?MarkerEventData $markerEventData = null;
 
     /**
      * @param Event $event
@@ -142,12 +123,8 @@ class Event
             return [self::TYPE_MESSAGE];
         }
 
-        if($event->type === self::TYPE_COMMAND) {
-            return [self::TYPE_COMMAND];
-        }
-
-        if($event->type === self::TYPE_USER_UPDATED) {
-            return [self::TYPE_USER_UPDATED];
+        if($event->type === self::TYPE_MARKER) {
+            return [self::TYPE_MARKER];
         }
 
         return [self::VALIDATION_DEFAULT];
@@ -156,13 +133,16 @@ class Event
     /**
      * Creates an event that has private fields the ORM usually sets set to reasonable values for dispatch.
      * Convenience function.
+     * @param string $mark
      * @return static
      */
-    public static function createEphemeralEvent(): self
+    public static function createEphemeralMarkerEvent(string $mark): self
     {
         $event = new self();
         $event->setId(Uuid::uuid4());
         $event->datetime = new \DateTimeImmutable();
+        $event->type = self::TYPE_MARKER;
+        $event->markerEventData = new MarkerEventData($mark, true);
 
         return $event;
     }
@@ -211,18 +191,13 @@ class Event
         $this->messageEventData = $messageEventData;
     }
 
-    public function getCommandEventData(): ?CommandEventData
+    public function getMarkerData(): ?MarkerEventData
     {
-        return $this->commandEventData;
+        return $this->markerEventData;
     }
 
-    public function setCommandEventData(?CommandEventData $commandEventData): void
+    public function setMarkerData(?MarkerEventData $markerEventData): void
     {
-        $this->commandEventData = $commandEventData;
-    }
-
-    public function isEphemeral(): bool
-    {
-        return in_array($this->type, self::EPHEMERAL_TYPES);
+        $this->markerEventData = $markerEventData;
     }
 }

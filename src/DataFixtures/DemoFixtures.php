@@ -1,16 +1,16 @@
 <?php
 
-namespace PostChat\Api\DataFixtures;
+namespace EventStreamApi\DataFixtures;
 
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Faker\Generator;
-use PostChat\Api\Entity\Event;
-use PostChat\Api\Entity\Stream;
-use PostChat\Api\Entity\StreamUser;
-use PostChat\Api\Entity\EventData\MessageEventData;
-use PostChat\Api\Entity\Subscription;
-use PostChat\Api\Entity\User;
+use EventStreamApi\Entity\Event;
+use EventStreamApi\Entity\Stream;
+use EventStreamApi\Entity\StreamUser;
+use EventStreamApi\Entity\EventData\MessageEventData;
+use EventStreamApi\Entity\Subscription;
+use EventStreamApi\Entity\User;
 
 class DemoFixtures extends Fixture
 {
@@ -140,7 +140,7 @@ class DemoFixtures extends Fixture
                 $event->datetime = \DateTimeImmutable::createFromMutable($this->faker->dateTimeThisYear);
 
                 $messageEventData = new MessageEventData();
-                $messageEventData->text = $this->faker->realText();
+                $messageEventData->data = $this->faker->realText();
                 $event->setMessageEventData($messageEventData);
 
                 $manager->persist($event);

@@ -1,8 +1,8 @@
 <?php
-namespace PostChat\Api\MessageHandler;
+namespace EventStreamApi\MessageHandler;
 
-use PostChat\Api\Entity\Event;
-use PostChat\Api\Entity\Subscription;
+use EventStreamApi\Entity\Event;
+use EventStreamApi\Entity\Subscription;
 
 class Notification
 {

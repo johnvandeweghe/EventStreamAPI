@@ -14,18 +14,18 @@ services:
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
-    PostChat\Api\:
+    EventStreamApi\:
         resource: '../src/*'
         exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
 
-    PostChat\Api\Controller\:
+    EventStreamApi\Controller\:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
 
-    PostChat\Api\DataPersister:
+    EventStreamApi\DataPersister:
         decorates: 'api_platform.doctrine.orm.data_persister'
 
-    PostChat\Api\UserAccessQueryExtension:
+    EventStreamApi\UserAccessQueryExtension:
         tags:
             - { name: api_platform.doctrine.orm.query_extension.collection }
             - { name: api_platform.doctrine.orm.query_extension.item }
@@ -39,7 +39,7 @@ services:
     Doctrine\Inflector\Inflector:
         factory: ['@doctrine.inflector.factory', 'build']
 
-    PostChat\Api\Security\TokenVerifier:
+    EventStreamApi\Security\TokenVerifier:
         arguments:
             $jwksUri: "%env(JWKS_URI)%"
             $issuer: "%env(JWT_ISSUER)%"

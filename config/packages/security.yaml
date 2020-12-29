@@ -9,10 +9,10 @@ security:
             pattern: ^/api
             stateless: true
             custom_authenticators:
-                - PostChat\Api\Security\GuardAuthenticator
+                - EventStreamApi\Security\GuardAuthenticator
 
     access_control:
-        - { path: ^/api/docs., roles: PUBLIC_ACCESS } #temp
-        - { path: ^/api/contexts/, roles: PUBLIC_ACCESS } #temp
+        - { path: ^/api/docs., roles: PUBLIC_ACCESS }
+        - { path: ^/api/contexts/, roles: PUBLIC_ACCESS }
         - { path: ^/api/, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/api, roles: PUBLIC_ACCESS } #temp
+        - { path: ^/api, roles: PUBLIC_ACCESS }

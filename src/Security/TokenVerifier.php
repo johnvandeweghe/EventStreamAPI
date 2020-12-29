@@ -1,5 +1,5 @@
 <?php
-namespace PostChat\Api\Security;
+namespace EventStreamApi\Security;
 
 use Firebase\JWT\JWK;
 use Firebase\JWT\JWT;

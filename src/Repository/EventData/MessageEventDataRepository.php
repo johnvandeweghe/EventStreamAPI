@@ -1,8 +1,8 @@
 <?php
 
-namespace PostChat\Api\Repository\EventData;
+namespace EventStreamApi\Repository\EventData;
 
-use PostChat\Api\Entity\EventData\MessageEventData;
+use EventStreamApi\Entity\EventData\MessageEventData;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

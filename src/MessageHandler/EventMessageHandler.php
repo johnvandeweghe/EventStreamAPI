@@ -1,10 +1,10 @@
 <?php
-namespace PostChat\Api\MessageHandler;
+namespace EventStreamApi\MessageHandler;
 
 use Enqueue\MessengerAdapter\EnvelopeItem\TransportConfiguration;
-use PostChat\Api\Entity\Event;
-use PostChat\Api\Entity\StreamUser;
-use PostChat\Api\Entity\Subscription;
+use EventStreamApi\Entity\Event;
+use EventStreamApi\Entity\StreamUser;
+use EventStreamApi\Entity\Subscription;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 

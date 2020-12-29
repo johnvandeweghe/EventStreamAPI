@@ -1,10 +1,10 @@
 <?php
 
-namespace PostChat\Api\Entity;
+namespace EventStreamApi\Entity;
 
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
-use PostChat\Api\Repository\RoleRepository;
+use EventStreamApi\Repository\RoleRepository;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;

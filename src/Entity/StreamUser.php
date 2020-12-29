@@ -1,6 +1,6 @@
 <?php
 
-namespace PostChat\Api\Entity;
+namespace EventStreamApi\Entity;
 
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiProperty;
@@ -14,7 +14,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
-use PostChat\Api\Repository\StreamUserRepository;
+use EventStreamApi\Repository\StreamUserRepository;
 
 /**
  * @ApiResource(

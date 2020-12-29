@@ -1,11 +1,12 @@
 <?php
-namespace PostChat\Api\MessageHandler;
+namespace EventStreamApi\MessageHandler;
 
-use PostChat\Api\Entity\Event;
-use PostChat\Api\Entity\Role;
-use PostChat\Api\Entity\Stream;
-use PostChat\Api\Entity\StreamUser;
-use PostChat\Api\Entity\User;
+use EventStreamApi\Entity\Event;
+use EventStreamApi\Entity\EventData\MarkerEventData;
+use EventStreamApi\Entity\Role;
+use EventStreamApi\Entity\Stream;
+use EventStreamApi\Entity\StreamUser;
+use EventStreamApi\Entity\User;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Core\Security;
@@ -104,15 +105,14 @@ class StreamHandler implements MessageHandlerInterface
     }
 
     /**
-     * @param Stream|null $owner
+     * @param Stream $owner
      * @param User $user
      */
     protected function alertParentOfNewChild(Stream $owner, User $user): void
     {
-        $streamAddedEvent = Event::createEphemeralEvent();
+        $streamAddedEvent = Event::createEphemeralMarkerEvent(MarkerEventData::MARK_CHILD_STREAM_CREATED);
         $streamAddedEvent->setStream($owner);
         $streamAddedEvent->setUser($user);
-        $streamAddedEvent->type = Event::TYPE_CHILD_STREAM_CREATED;
 
         $this->messageBus->dispatch($streamAddedEvent);
     }

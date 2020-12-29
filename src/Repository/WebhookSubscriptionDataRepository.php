@@ -1,10 +1,10 @@
 <?php
 
-namespace PostChat\Api\Repository;
+namespace EventStreamApi\Repository;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use PostChat\Api\Entity\WebhookSubscriptionData;
+use EventStreamApi\Entity\WebhookSubscriptionData;
 
 /**
  * @method WebhookSubscriptionData|null find($id, $lockMode = null, $lockVersion = null)

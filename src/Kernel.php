@@ -1,6 +1,6 @@
 <?php
 
-namespace PostChat\Api;
+namespace EventStreamApi;
 
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;

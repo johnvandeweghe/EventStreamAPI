@@ -32,3 +32,10 @@ This should be set to the issuer string that should be trusted in signed JWTs.
 
 Example:
 ```https://postchat.us.auth0.com/```
+
+### JWT_AUDIENCE
+
+This should be set to the audience that represents this API. Tokens without this audience will be rejected.
+
+Example:
+```https://api.getpostchat.com/```

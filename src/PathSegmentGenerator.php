@@ -1,6 +1,6 @@
 <?php
 
-namespace PostChat\Api;
+namespace EventStreamApi;
 
 use ApiPlatform\Core\Operation\PathSegmentNameGeneratorInterface;
 use Doctrine\Inflector\Inflector;

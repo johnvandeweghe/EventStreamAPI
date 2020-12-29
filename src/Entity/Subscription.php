@@ -1,6 +1,6 @@
 <?php
 
-namespace PostChat\Api\Entity;
+namespace EventStreamApi\Entity;
 
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiProperty;
@@ -11,6 +11,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use EventStreamApi\Repository\SubscriptionRepository;
 
 /**
  * @ApiResource(
@@ -20,7 +21,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *     denormalizationContext={"groups"={"subscription:write"}},
  *     attributes={"validation_groups"={Subscription::class, "validationGroups"}}
  * )
- * @ORM\Entity(repositoryClass="PostChat\Api\Repository\SubscriptionRepository")
+ * @ORM\Entity(repositoryClass=SubscriptionRepository::class)
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uq_transport_stream_user", columns={"transport", "stream_user_id"})})
  * @UniqueEntity(fields={"transport", "streamUser"})
  */

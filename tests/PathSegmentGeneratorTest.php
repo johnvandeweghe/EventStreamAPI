@@ -1,5 +1,5 @@
 <?php
-namespace PostChat\Api;
+namespace EventStreamApi;
 
 use Doctrine\Inflector\InflectorFactory;
 use PHPUnit\Framework\TestCase;

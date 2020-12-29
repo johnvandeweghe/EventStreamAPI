@@ -1,8 +1,8 @@
 <?php
 
-namespace PostChat\Api\Repository;
+namespace EventStreamApi\Repository;
 
-use PostChat\Api\Entity\StreamUser;
+use EventStreamApi\Entity\StreamUser;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

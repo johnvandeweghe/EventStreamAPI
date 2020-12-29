@@ -1,9 +1,9 @@
 <?php
 
-namespace PostChat\Api\Security\Voter;
+namespace EventStreamApi\Security\Voter;
 
-use PostChat\Api\Entity\StreamUser;
-use PostChat\Api\Entity\User;
+use EventStreamApi\Entity\StreamUser;
+use EventStreamApi\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 

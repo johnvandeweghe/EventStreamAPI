@@ -1,17 +1,17 @@
 <?php
-namespace PostChat\Api;
+namespace EventStreamApi;
 
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Extension\QueryItemExtensionInterface;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
-use PostChat\Api\Entity\Event;
-use PostChat\Api\Entity\Role;
-use PostChat\Api\Entity\Stream;
-use PostChat\Api\Entity\StreamUser;
-use PostChat\Api\Entity\Subscription;
-use PostChat\Api\Entity\User;
+use EventStreamApi\Entity\Event;
+use EventStreamApi\Entity\Role;
+use EventStreamApi\Entity\Stream;
+use EventStreamApi\Entity\StreamUser;
+use EventStreamApi\Entity\Subscription;
+use EventStreamApi\Entity\User;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 

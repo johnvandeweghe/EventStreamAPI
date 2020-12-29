@@ -1,13 +1,13 @@
 <?php
-namespace PostChat\Api;
+namespace EventStreamApi;
 
 use ApiPlatform\Core\Bridge\Symfony\Messenger\RemoveStamp;
 use ApiPlatform\Core\DataPersister\DataPersisterInterface;
 use ApiPlatform\Core\DataPersister\ContextAwareDataPersisterInterface;
-use PostChat\Api\Entity\Event;
-use PostChat\Api\Entity\Stream;
-use PostChat\Api\Entity\StreamUser;
-use PostChat\Api\Entity\User;
+use EventStreamApi\Entity\Event;
+use EventStreamApi\Entity\Stream;
+use EventStreamApi\Entity\StreamUser;
+use EventStreamApi\Entity\User;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Core\Security;
@@ -45,7 +45,7 @@ final class DataPersister implements ContextAwareDataPersisterInterface
             $data->datetime = new \DateTimeImmutable();
         }
 
-        $isEphemeralEvent = $data instanceof Event && $data->isEphemeral();
+        $isEphemeralEvent = $data instanceof Event && $data->type === Event::TYPE_MARKER && $data->getMarkerData()->ephemeral;
         if(!$isEphemeralEvent) {
             $result = $this->decorated->persist($data, $context);
         } else {

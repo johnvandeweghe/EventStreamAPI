@@ -1,10 +1,10 @@
 <?php
-namespace PostChat\Api\Security;
+namespace EventStreamApi\Security;
 
 use Doctrine\ORM\EntityManager;
 use PHPUnit\Framework\TestCase;
-use PostChat\Api\Entity\User;
-use PostChat\Api\Repository\UserRepository;
+use EventStreamApi\Entity\User;
+use EventStreamApi\Repository\UserRepository;
 use Symfony\Bridge\Doctrine\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Test\TestBrowserToken;
 use Symfony\Component\HttpFoundation\Request;

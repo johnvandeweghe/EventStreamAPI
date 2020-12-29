@@ -1,9 +1,9 @@
 api_platform:
-    version: 2.0.0
-    title: 'PostChat API'
-    description: 'The REST API and core of PostChat.'
+    version: 1.0.0
+    title: 'Event Stream API'
+    description: 'An API for publishing and subscribing to event streams.'
     show_webby: false
-    path_segment_name_generator: 'PostChat\Api\PathSegmentGenerator'
+    path_segment_name_generator: 'EventStreamApi\PathSegmentGenerator'
     mapping:
         paths: ['%kernel.project_dir%/src/Entity']
     formats:

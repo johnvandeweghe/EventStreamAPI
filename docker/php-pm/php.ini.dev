@@ -5,7 +5,3 @@ disable_functions =
 
 max_execution_time = 0
 max_input_time = 0
-
-xdebug.remote_enable=1
-xdebug.remote_autostart=1
-xdebug.remote_connect_back=1

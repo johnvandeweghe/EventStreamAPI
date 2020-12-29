@@ -1,23 +1,29 @@
 <?php
 
-namespace PostChat\Api\Entity\EventData;
+namespace EventStreamApi\Entity\EventData;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
-use PostChat\Api\Repository\EventData\CommandEventDataRepository;
+use EventStreamApi\Repository\EventData\MarkerEventDataRepository;
 
 /**
  * @ApiResource(
  *     collectionOperations={},
  *     itemOperations={"get"}
  * )
- * @ORM\Entity(repositoryClass=CommandEventDataRepository::class)
+ * @ORM\Entity(repositoryClass=MarkerEventDataRepository::class)
  */
-class CommandEventData
+class MarkerEventData
 {
+    //Programmatically generated marks.
+    public const MARK_CHILD_STREAM_CREATED  = "stream-created";
+    public const MARK_USER_ADDED_TO_CHILD   = "user-added-to-child";
+    public const MARK_USER_JOINED           = "user-joined";
+    public const MARK_USER_LEFT             = "user-left";
+
     /**
      * @ORM\Id()
      * @ORM\Column(type="uuid", unique=true)
@@ -28,16 +34,21 @@ class CommandEventData
     protected UuidInterface $id;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", length=255)
      * @Groups({"event:read", "event:write"})
      */
-    public string $command;
+    public string $mark;
 
     /**
-     * @ORM\Column(type="json")
      * @Groups({"event:read", "event:write"})
      */
-    public array $parameters;
+    public bool $ephemeral;
+
+    public function __construct(string $mark, bool $ephemeral)
+    {
+        $this->mark = $mark;
+        $this->ephemeral = $ephemeral;
+    }
 
     public function getId(): UuidInterface
     {

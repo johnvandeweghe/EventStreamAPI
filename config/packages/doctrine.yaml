@@ -10,9 +10,9 @@ doctrine:
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
         auto_mapping: true
         mappings:
-            PostChat\Api:
+            EventStreamApi:
                 is_bundle: false
                 type: annotation
                 dir: '%kernel.project_dir%/src/Entity'
-                prefix: 'PostChat\Api\Entity'
-                alias: PostChat\Api
+                prefix: 'EventStreamApi\Entity'
+                alias: EventStreamApi
