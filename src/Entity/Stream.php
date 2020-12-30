@@ -95,23 +95,27 @@ class Stream
     /**
      * @ORM\OneToMany(targetEntity=Stream::class, mappedBy="owner")
      * @ApiSubresource(maxDepth=1)
+     * @var Collection<int, self>|self[]
      */
     private $subStreams;
 
     /**
      * @ORM\OneToMany(targetEntity=StreamUser::class, mappedBy="stream", orphanRemoval=true)
      * @ApiSubresource(maxDepth=1)
+     * @var Collection<int, StreamUser>|StreamUser[]
      */
     private $streamUsers;
 
     /**
      * @ORM\OneToMany(targetEntity=Event::class, mappedBy="stream", orphanRemoval=true)
      * @ApiSubresource()
+     * @var Collection<int, Event>|Event[]
      */
     private $events;
 
     /**
      * @ORM\OneToMany(targetEntity=Role::class, mappedBy="stream", orphanRemoval=true, cascade={"persist"})
+     * @var Collection<int, Role>|Role[]
      */
     private $roles;
 
@@ -154,7 +158,7 @@ class Stream
         return $this->owner;
     }
 
-    public function setOwner(?self $owner)
+    public function setOwner(?self $owner): void
     {
         $this->owner = $owner;
     }
@@ -162,9 +166,9 @@ class Stream
     /**
      * @return self[]
      */
-    public function getSubStreams()
+    public function getSubStreams(): array
     {
-        return $this->subStreams->getValues();
+        return $this->subStreams->toArray();
     }
 
     public function addSubStream(self $subStream): void
@@ -189,9 +193,9 @@ class Stream
     /**
      * @return StreamUser[]
      */
-    public function getStreamUsers()
+    public function getStreamUsers(): array
     {
-        return $this->streamUsers->getValues();
+        return $this->streamUsers->toArray();
     }
 
     public function hasUser(User $user): bool
@@ -216,11 +220,11 @@ class Stream
     }
 
     /**
-     * @return Collection|Event[]
+     * @return Event[]
      */
-    public function getEvents(): Collection
+    public function getEvents(): array
     {
-        return $this->events->getValues();
+        return $this->events->toArray();
     }
 
     public function addEvent(Event $event): void
@@ -239,11 +243,11 @@ class Stream
     }
 
     /**
-     * @return Collection|Role[]
+     * @return Role[]
      */
-    public function getRoles(): Collection
+    public function getRoles(): array
     {
-        return $this->roles;
+        return $this->roles->toArray();
     }
 
     public function addRole(Role $role): void

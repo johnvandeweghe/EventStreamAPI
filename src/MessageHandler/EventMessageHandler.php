@@ -15,7 +15,7 @@ class EventMessageHandler implements MessageHandlerInterface
         $this->messageBus = $messageBus;
     }
 
-    public function __invoke(Event $event)
+    public function __invoke(Event $event): void
     {
         $subscriptionsByTransport = array_reduce(
             array_merge([], ...array_map(static function(StreamUser $streamUser) {

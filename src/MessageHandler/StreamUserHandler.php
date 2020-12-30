@@ -23,7 +23,7 @@ class StreamUserHandler implements MessageHandlerInterface
         $this->messageBus = $messageBus;
     }
 
-    public function __invoke(StreamUser $streamUser)
+    public function __invoke(StreamUser $streamUser): void
     {
         $manager = $this->managerRegistry->getManagerForClass(get_class($streamUser));
         if(!$manager){

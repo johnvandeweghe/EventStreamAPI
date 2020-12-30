@@ -36,12 +36,13 @@ class User implements UserInterface
 
     /**
      * @ORM\OneToMany(targetEntity=StreamUser::class, mappedBy="user", orphanRemoval=true)
-     * @var StreamUser[]
+     * @var Collection<int, StreamUser>|StreamUser[]
      */
     private $streamUsers;
 
     /**
      * @ORM\OneToMany(targetEntity=Event::class, mappedBy="user", orphanRemoval=true)
+     * @var Collection<int, Event>|Event[]
      */
     private $events;
 
@@ -71,9 +72,9 @@ class User implements UserInterface
     /**
      * @return StreamUser[]
      */
-    public function getStreamUsers()
+    public function getStreamUsers(): array
     {
-        return $this->streamUsers->getValues();
+        return $this->streamUsers->toArray();
     }
 
     public function addStreamUser(StreamUser $streamUser): void
@@ -92,11 +93,11 @@ class User implements UserInterface
     }
 
     /**
-     * @return Collection|Event[]
+     * @return Event[]
      */
-    public function getEvents(): Collection
+    public function getEvents(): array
     {
-        return $this->events->getValues();
+        return $this->events->toArray();
     }
 
     public function addEvent(Event $event): void

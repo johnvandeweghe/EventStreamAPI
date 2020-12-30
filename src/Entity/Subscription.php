@@ -66,7 +66,7 @@ class Subscription
     /**
      * @ORM\Column(type="simple_array", nullable=true)
      * @Groups({"subscription:read", "subscription:write"})
-     * @var array|null
+     * @var string[]|null
      */
     public ?array $eventTypes;
 

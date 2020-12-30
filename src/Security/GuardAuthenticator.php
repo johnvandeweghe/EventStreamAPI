@@ -49,7 +49,7 @@ class GuardAuthenticator extends AbstractAuthenticator
         }));
     }
 
-    private function createUserFromRemoteUser($tokenSubject): User
+    private function createUserFromRemoteUser(string $tokenSubject): User
     {
         $entityManager = $this->managerRegistry->getManagerForClass(User::class);
 

@@ -35,8 +35,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Event
 {
-    public const TYPE_MESSAGE               = "message";
-    public const TYPE_MARKER                = "marker";
+    public const TYPE_MESSAGE = "message";
+    public const TYPE_MARKER  = "marker";
 
 
     public const TYPES = [
@@ -134,7 +134,7 @@ class Event
      * Creates an event that has private fields the ORM usually sets set to reasonable values for dispatch.
      * Convenience function.
      * @param string $mark
-     * @return static
+     * @return self
      */
     public static function createEphemeralMarkerEvent(string $mark): self
     {

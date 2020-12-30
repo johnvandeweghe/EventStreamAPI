@@ -15,6 +15,10 @@ class TokenVerifier
         private CacheInterface $jwkCache
     ) {}
 
+    /**
+     * @param string $token
+     * @return array<string, string>
+     */
     public function verify(string $token): array
     {
         $keys = $this->getJWKs();
@@ -48,12 +52,16 @@ class TokenVerifier
     }
 
     /**
-     * @return array
+     * @return array<string, string>
      */
     protected function getJWKs()
     {
         return $this->jwkCache->get("jwks-" . md5($this->jwksUri), function (ItemInterface $item) {
-            $jwks = json_decode(file_get_contents($this->jwksUri), true, 512, JSON_THROW_ON_ERROR);
+            $rawJWKs = file_get_contents($this->jwksUri);
+            if (!$rawJWKs) {
+                throw new \RuntimeException("Unable to retrieve JWK set");
+            }
+            $jwks = json_decode($rawJWKs, true, 512, JSON_THROW_ON_ERROR);
             return JWK::parseKeySet($jwks);
         });
     }

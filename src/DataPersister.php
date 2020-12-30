@@ -33,7 +33,7 @@ final class DataPersister implements ContextAwareDataPersisterInterface
     public function persist($data, array $context = [])
     {
         /**
-         * @var $user User
+         * @var User $user
          */
         $user = $this->security->getUser();
         if(!$user) {
@@ -64,12 +64,10 @@ final class DataPersister implements ContextAwareDataPersisterInterface
 //               ($context['graphql_operation_name'] ?? null) === 'create';
 //    }
 
-    public function remove($data, array $context = [])
+    public function remove($data, array $context = []): void
     {
-        $result = $this->decorated->remove($data, $context);
+        $this->decorated->remove($data, $context);
 
         $this->messageBus->dispatch($data, [new RemoveStamp()]);
-
-        return $result;
     }
 }

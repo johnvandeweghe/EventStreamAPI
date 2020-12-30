@@ -25,13 +25,15 @@ class StreamHandler implements MessageHandlerInterface
         $this->messageBus = $messageBus;
     }
 
-    public function __invoke(Stream $stream)
+    public function __invoke(Stream $stream): void
     {
         $manager = $this->managerRegistry->getManagerForClass(Stream::class);
         /**
-         * @var $user User
+         * @var ?User $user
          */
-        if(!$manager || !($user = $this->security->getUser()) || $stream->hasUser($user)){
+        $user = $this->security->getUser();
+
+        if (!$manager || !$user || $stream->hasUser($user)){
             //Prevent triggering new stream behavior again, assume if the user is already in it it must be update event.
             return;
         }

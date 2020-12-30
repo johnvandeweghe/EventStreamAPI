@@ -13,7 +13,11 @@ class Notification
      */
     protected array $subscriptions;
 
-    public function __construct(Event $event, $subscriptions)
+    /**
+     * @param Event $event
+     * @param Subscription[] $subscriptions
+     */
+    public function __construct(Event $event, array $subscriptions)
     {
         $this->event = $event;
         $this->subscriptions = $subscriptions;

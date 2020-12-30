@@ -68,11 +68,6 @@ class DemoFixtures extends Fixture
 
         //add all of the users to the workspace and the general channel, and persist them
         foreach($users as $user) {
-            $user->nickname = $this->faker->firstName;
-            $user->name = $user->nickname . " " . $this->faker->lastName;
-            $user->email = $this->faker->email;
-            $user->picture = "gravatar";
-
             $streamUserWorkspace = new StreamUser();
             $streamUserWorkspace->setUser($user);
             $streamUserWorkspace->setStream($workspace);
@@ -98,6 +93,16 @@ class DemoFixtures extends Fixture
         return $workspace;
     }
 
+    /**
+     * @param ObjectManager $manager
+     * @param Stream $workspace
+     * @param User[] $users
+     * @param int $numChannels
+     * @param int $numMockUsers
+     * @param int $numMockEvents
+     * @param int $maxUsersPerChannel
+     * @param bool $discoverable
+     */
     protected function createChannels(ObjectManager $manager, Stream $workspace, array $users, int $numChannels, int $numMockUsers, int $numMockEvents, int $maxUsersPerChannel, bool $discoverable): void
     {
         foreach (range(1, $numChannels) as $i) {

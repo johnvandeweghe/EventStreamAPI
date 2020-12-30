@@ -79,6 +79,7 @@ class StreamUser
     /**
      * @ORM\OneToMany(targetEntity=Subscription::class, mappedBy="streamUser", orphanRemoval=true)
      * @ApiSubresource()
+     * @var Collection<int, Subscription>|Subscription[]
      */
     protected $subscriptions;
 
@@ -91,6 +92,7 @@ class StreamUser
     /**
      * @ORM\ManyToMany(targetEntity=Role::class)
      * @Groups({"stream-user:read"})
+     * @var Collection<int, Role>|Role[]
      */
     protected $roles;
 
@@ -132,11 +134,11 @@ class StreamUser
     }
 
     /**
-     * @return Collection|Subscription[]
+     * @return Subscription[]
      */
-    public function getSubscriptions()
+    public function getSubscriptions(): array
     {
-        return $this->subscriptions->getValues();
+        return $this->subscriptions->toArray();
     }
 
     public function addSubscription(Subscription $subscription): void
@@ -151,10 +153,6 @@ class StreamUser
     {
         if ($this->subscriptions->contains($subscription)) {
             $this->subscriptions->removeElement($subscription);
-            // set the owning side to null (unless already changed)
-            if ($subscription->getStreamUser() === $this) {
-                $subscription->setStreamUser(null);
-            }
         }
     }
 
@@ -180,11 +178,11 @@ class StreamUser
     }
 
     /**
-     * @return Collection|Role[]
+     * @return Role[]
      */
-    public function getRoles(): Collection
+    public function getRoles(): array
     {
-        return $this->roles;
+        return $this->roles->toArray();
     }
 
     public function addRole(Role $role): self

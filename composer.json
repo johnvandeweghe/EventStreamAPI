@@ -28,8 +28,6 @@
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.3",
         "fakerphp/faker": "^1.13",
-        "infection/infection": "^0.20.2",
-        "phpstan/phpstan": "^0.12.64",
         "roave/security-advisories": "dev-master",
         "symfony/maker-bundle": "^1.15",
         "symfony/profiler-pack": "^1.0",
@@ -70,6 +68,12 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ],
+        "test": [
+            "./bin/phpunit",
+            "composer install --working-dir=tools",
+            "XDEBUG_MODE=coverage ./tools/vendor/bin/infection",
+            "./tools/vendor/bin/phpstan analyze -l 7 src"
         ]
     },
     "conflict": {

@@ -9,13 +9,24 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class StreamUserVoter extends Voter
 {
-    protected function supports($attribute, $subject)
+    /**
+     * @param string $attribute
+     * @param mixed $subject
+     * @return bool
+     */
+    protected function supports(string $attribute, mixed $subject)
     {
         return $attribute === 'STREAM_JOIN'
             && $subject instanceof StreamUser;
     }
 
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
+    /**
+     * @param string $attribute
+     * @param mixed $subject
+     * @param TokenInterface $token
+     * @return bool
+     */
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token)
     {
         $user = $token->getUser();
 
