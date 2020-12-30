@@ -4,7 +4,11 @@ This is a RESTful API for Event Streams.
 
 # Installation
 
-Use Docker.
+Use Docker. Until v1 is published you will need to build it locally and push the image to a registry.
+
+TODO: Publish image at v1.0.0...
+
+The Dockerfile in the project root is meant for prod.
 
 ## Dependencies
 
@@ -14,8 +18,12 @@ The Event Stream API requires a database. Migrations are provided for a Postgres
 
 #### Running migrations
 
-Run this command to trigger migrations:
-TODO
+Run this command to trigger migrations (when the api is running as a local docker):
+
+```docker exec -it eventstreamapi bin/console doctrine:migrations:migrate```
+
+TODO: helm?
+
 
 ## Environmental Variables
 
