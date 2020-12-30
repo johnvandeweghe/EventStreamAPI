@@ -1,7 +1,6 @@
 <?php
 namespace EventStreamApi\MessageHandler;
 
-use Enqueue\MessengerAdapter\EnvelopeItem\TransportConfiguration;
 use EventStreamApi\Entity\Event;
 use EventStreamApi\Entity\StreamUser;
 use EventStreamApi\Entity\Subscription;
@@ -38,8 +37,7 @@ class EventMessageHandler implements MessageHandlerInterface
 
         foreach($subscriptionsByTransport as $transportName => $subscriptions) {
             $this->messageBus->dispatch(
-                new Notification($event, $subscriptions),
-                [(new TransportConfiguration())->setTopic("transport-$transportName")]
+                new Notification($event, $subscriptions)
             );
         }
     }

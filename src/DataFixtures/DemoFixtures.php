@@ -4,6 +4,7 @@ namespace EventStreamApi\DataFixtures;
 
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use EventStreamApi\Entity\EventData\MarkerEventData;
 use Faker\Generator;
 use EventStreamApi\Entity\Event;
 use EventStreamApi\Entity\Stream;
@@ -116,7 +117,8 @@ class DemoFixtures extends Fixture
                 $event = new Event();
                 $event->setUser($channelUser);
                 $event->setStream($channel);
-                $event->type = Event::TYPE_USER_JOINED;
+                $event->type = Event::TYPE_MARKER;
+                $event->setMarkerData(new MarkerEventData(MarkerEventData::MARK_USER_JOINED, false));
                 $event->datetime = new \DateTimeImmutable("Jan 1st");
 
                 if (random_int(0, 1) === 1) {
