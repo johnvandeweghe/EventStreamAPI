@@ -25,15 +25,24 @@ final class DataPersister implements ContextAwareDataPersisterInterface
         $this->messageBus = $messageBus;
     }
 
+    /**
+     * @phpstan-ignore-next-line
+     */
     public function supports($data, array $context = []): bool
     {
+        /**
+         * @phpstan-ignore-next-line
+         */
         return $this->decorated->supports($data, $context);
     }
 
+    /**
+     * @phpstan-ignore-next-line
+     */
     public function persist($data, array $context = [])
     {
         /**
-         * @var User $user
+         * @var User|null $user
          */
         $user = $this->security->getUser();
         if(!$user) {
@@ -47,6 +56,9 @@ final class DataPersister implements ContextAwareDataPersisterInterface
 
         $isEphemeralEvent = $data instanceof Event && $data->type === Event::TYPE_MARKER && $data->getMarkerData()->ephemeral;
         if(!$isEphemeralEvent) {
+            /**
+             * @phpstan-ignore-next-line
+             */
             $result = $this->decorated->persist($data, $context);
         } else {
             $result = $data;
@@ -64,8 +76,14 @@ final class DataPersister implements ContextAwareDataPersisterInterface
 //               ($context['graphql_operation_name'] ?? null) === 'create';
 //    }
 
+    /**
+     * @phpstan-ignore-next-line
+     */
     public function remove($data, array $context = []): void
     {
+        /**
+         * @phpstan-ignore-next-line
+         */
         $this->decorated->remove($data, $context);
 
         $this->messageBus->dispatch($data, [new RemoveStamp()]);

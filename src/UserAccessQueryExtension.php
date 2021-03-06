@@ -37,6 +37,9 @@ final class UserAccessQueryExtension implements QueryCollectionExtensionInterfac
         $this->modifyQuery($queryBuilder, $resourceClass, true);
     }
 
+    /**
+     * @phpstan-ignore-next-line
+     */
     public function applyToItem(
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,

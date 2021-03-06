@@ -1,6 +1,6 @@
 {
     "require": {
-        "infection/infection": "^0.20.2",
-        "phpstan/phpstan": "^0.12.64"
+        "infection/infection": "^0.21.4",
+        "phpstan/phpstan": "^0.12.80"
     }
 }

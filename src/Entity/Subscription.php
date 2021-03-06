@@ -27,11 +27,11 @@ use EventStreamApi\Repository\SubscriptionRepository;
  */
 class Subscription
 {
-    public const TRANSPORT_PUSHER   = 'pusher';
+    public const TRANSPORT_GENERIC   = 'generic';
     public const TRANSPORT_WEBHOOK  = 'webhook';
 
     public const TRANSPORTS = [
-        self::TRANSPORT_PUSHER,
+        self::TRANSPORT_GENERIC,
         self::TRANSPORT_WEBHOOK
     ];
 
@@ -56,7 +56,7 @@ class Subscription
      *         "openapi_context"={
      *             "type"="string",
      *             "enum"=Subscription::TRANSPORTS,
-     *             "example"=Subscription::TRANSPORT_PUSHER
+     *             "example"=Subscription::TRANSPORT_GENERIC
      *         }
      *     }
      * )

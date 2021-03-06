@@ -10,6 +10,8 @@ TODO: Publish image at v1.0.0...
 
 The Dockerfile in the project root is meant for prod.
 
+TODO: helm?
+
 ## Dependencies
 
 ### Database
@@ -22,7 +24,10 @@ Run this command to trigger migrations (when the api is running as a local docke
 
 ```docker exec -it eventstreamapi bin/console doctrine:migrations:migrate```
 
-TODO: helm?
+### Transports Queue
+
+To leverage transports, a queue service is required. Notification events will be published to the queue configured by 
+the `MESSENGER_TRANSPORT_DSN` env var. Supported transports are... TODO
 
 
 ## Environmental Variables
@@ -58,3 +63,15 @@ Example:
 ### `CORS_ALLOW_ORIGIN`
 
 This is the origins allowed for CORS. It is a regex string.
+
+### `MESSENGER_TRANSPORT_DSN`
+
+This configures the transport for the notification events that subscriptions generate to transport handlers.
+
+# Usage
+
+## Authentication
+
+## SDKs
+
+## API Documentation

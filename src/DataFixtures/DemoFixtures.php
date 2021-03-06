@@ -128,7 +128,7 @@ class DemoFixtures extends Fixture
 
                 if (random_int(0, 1) === 1) {
                     $subscription = new Subscription();
-                    $subscription->transport = "pusher";
+                    $subscription->transport = Subscription::TRANSPORT_GENERIC;
                     $subscription->setStreamUser($streamUser);
 
                     $manager->persist($subscription);

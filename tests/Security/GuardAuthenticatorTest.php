@@ -60,7 +60,6 @@ class GuardAuthenticatorTest extends TestCase
     //It's easiest to quickly test the token extraction with this code path so they are combined.
     public function testAuthenticateExtractsTokenToVerifierAndRetrowsInvalidToken()
     {
-
         $tokenVerifier = $this->getMockBuilder(TokenVerifier::class)->disableOriginalConstructor()->getMock();
         $mangerRegistry = $this->getMockBuilder(ManagerRegistry::class)->disableOriginalConstructor()->getMock();
         $userRepository = $this->getMockBuilder(UserRepository::class)->disableOriginalConstructor()->getMock();
@@ -73,10 +72,15 @@ class GuardAuthenticatorTest extends TestCase
             'HTTP_AUTHORIZATION' => "Bearer $token"
         ]);
 
+
+        $exceptionText = "Something went wrong";
+
         $this->expectException(CustomUserMessageAuthenticationException::class);
+        $this->expectExceptionMessage("Unable to validate JWT: $exceptionText");
 
         $tokenVerifier->expects(self::once())->method('verify')->with($token)
-            ->willThrowException(new \RuntimeException());
+            ->willThrowException(new \RuntimeException($exceptionText));
+
 
         $authenticator->authenticate($request);
     }
@@ -85,10 +89,6 @@ class GuardAuthenticatorTest extends TestCase
     {
         $validatedToken = [
             'sub' => 'mock|er4ewuoth432'
-        ];
-
-        $jwtUser = [
-            'user_id' => 'mock|er4ewuoth432'
         ];
 
         $tokenVerifier = $this->getMockBuilder(TokenVerifier::class)->disableOriginalConstructor()->getMock();
