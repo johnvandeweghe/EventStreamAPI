@@ -7,7 +7,6 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\ORM\Mapping as ORM;
-use EventStreamApi\Entity\EventData\CommandEventData;
 use EventStreamApi\Entity\EventData\MarkerEventData;
 use EventStreamApi\Entity\EventData\MessageEventData;
 use EventStreamApi\Repository\EventRepository;
@@ -30,7 +29,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Entity(repositoryClass=EventRepository::class)
  * @ORM\Table(indexes={
  *     @ORM\Index(name="idx_e_stream_datetime", columns={"stream_id", "datetime"}),
- *     @ORM\Index(name="idx_e_stream_user_datetime", columns={"stream_id", "user_id", "datetime"})
+ *     @ORM\Index(name="idx_e_stream_user_datetime", columns={"stream_id", "user_id", "datetime"}),
+ *     @ORM\Index(name="idx_e_stream_transport_datetime", columns={"stream_id", "transport_id", "datetime"})
  * })
  */
 class Event
@@ -112,6 +112,13 @@ class Event
      * @Assert\IsNull(groups={Event::VALIDATION_DEFAULT, Event::TYPE_MESSAGE})
      */
     protected ?MarkerEventData $markerEventData = null;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Transport::class)
+     * @ORM\JoinColumn(name="transport_id", referencedColumnName="name")
+     * @Groups({"event:read"})
+     */
+    protected ?Transport $transport;
 
     /**
      * @param Event $event
@@ -199,5 +206,15 @@ class Event
     public function setMarkerData(?MarkerEventData $markerEventData): void
     {
         $this->markerEventData = $markerEventData;
+    }
+
+    public function getTransport(): ?Transport
+    {
+        return $this->transport;
+    }
+
+    public function setTransport(?Transport $transport): void
+    {
+        $this->transport = $transport;
     }
 }

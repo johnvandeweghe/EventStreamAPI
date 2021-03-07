@@ -18,23 +18,14 @@ use EventStreamApi\Repository\SubscriptionRepository;
  *     collectionOperations={"get", "post"},
  *     itemOperations={"get", "delete"},
  *     normalizationContext={"groups"={"subscription:read"}},
- *     denormalizationContext={"groups"={"subscription:write"}},
- *     attributes={"validation_groups"={Subscription::class, "validationGroups"}}
+ *     denormalizationContext={"groups"={"subscription:write"}}
  * )
  * @ORM\Entity(repositoryClass=SubscriptionRepository::class)
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uq_transport_stream_user", columns={"transport", "stream_user_id"})})
+ * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uq_transport_stream_user", columns={"transport_id", "stream_user_id"})})
  * @UniqueEntity(fields={"transport", "streamUser"})
  */
 class Subscription
 {
-    public const TRANSPORT_GENERIC   = 'generic';
-    public const TRANSPORT_WEBHOOK  = 'webhook';
-
-    public const TRANSPORTS = [
-        self::TRANSPORT_GENERIC,
-        self::TRANSPORT_WEBHOOK
-    ];
-
     /**
      * @ORM\Id()
      * @ORM\Column(type="uuid", unique=true)
@@ -46,22 +37,13 @@ class Subscription
     protected UuidInterface $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\ManyToOne(targetEntity=Transport::class)
+     * @ORM\JoinColumn(name="transport_id", referencedColumnName="name")
      * @Groups({"subscription:read", "subscription:write"})
-     * @Assert\Choice(choices=Subscription::TRANSPORTS)
-     * @Assert\NotBlank(groups={"Default", "webhook_transport"})
      * @ApiFilter(SearchFilter::class, strategy="exact")
-     * @ApiProperty(
-     *     attributes={
-     *         "openapi_context"={
-     *             "type"="string",
-     *             "enum"=Subscription::TRANSPORTS,
-     *             "example"=Subscription::TRANSPORT_GENERIC
-     *         }
-     *     }
-     * )
+     * @Assert\NotBlank
      */
-    public string $transport;
+    public Transport $transport;
 
     /**
      * @ORM\Column(type="simple_array", nullable=true)
@@ -78,24 +60,11 @@ class Subscription
     protected StreamUser $streamUser;
 
     /**
-     * @ORM\OneToOne(targetEntity=WebhookSubscriptionData::class, cascade={"persist", "remove"})
+     * Configuration data to be passed to the transport. Each transport will expect something different here.
      * @Groups({"subscription:read", "subscription:write"})
-     * @Assert\NotBlank(groups={"webhook_transport"})
-     * @Assert\IsNull()
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
-    protected ?WebhookSubscriptionData $webhookData = null;
-
-    /**
-     * @param Subscription $subscription
-     * @return string[]
-     */
-    public static function validationGroups(self $subscription): array
-    {
-        if($subscription->transport === self::TRANSPORT_WEBHOOK) {
-            return ["webhook_transport"];
-        }
-        return ["Default"];
-    }
+    public ?string $transportConfiguration = null;
 
     public function getId(): UuidInterface
     {
@@ -112,24 +81,13 @@ class Subscription
         $this->streamUser = $streamUser;
     }
 
-    public function getTransport(): string
+    public function getTransport(): Transport
     {
         return $this->transport;
     }
 
-    public function setTransport(string $transport): Subscription
+    public function setTransport(Transport $transport): void
     {
         $this->transport = $transport;
-        return $this;
-    }
-
-    public function getWebhookData(): ?WebhookSubscriptionData
-    {
-        return $this->webhookData;
-    }
-
-    public function setWebhookData(?WebhookSubscriptionData $webhookData): void
-    {
-        $this->webhookData = $webhookData;
     }
 }

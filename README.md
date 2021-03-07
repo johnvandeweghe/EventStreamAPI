@@ -1,6 +1,6 @@
 # Event Stream API
 
-This is a RESTful API for Event Streams.
+This is a RESTful API for Event Streams with rich user event notification integration support.
 
 # Installation
 
@@ -71,7 +71,21 @@ This configures the transport for the notification events that subscriptions gen
 # Usage
 
 ## Authentication
+The EventStreamAPI is authenticated with RSA signed JWTs. Environmental variables are used to set the issuer, audience, and JWKs uri that are required for the token to verify. This is compatible with many authentication systems, such as Auth0.
 
 ## SDKs
 
 ## API Documentation
+
+# TODO
+Messages sent to transports for a subscription should generate an entry on that fact somewhere (sub log?) This can be added to / updated by the transport?
+Transports should be able to send data back without credentials/api calls. Relevant to ^ because responses for a sub log can come from that.
+
+Publish webhook transport from postchat
+Publish simplified typescipt sdk
+
+Add messaging lib back in (enqueue) now that it supports php 8
+Helm chart to deploy to kube with a DB + messaging backend? (package a messaging backend somehow in helm)
+
+Sample project that uses the API as part of a larger project. Webchat?
+Health care messaging. Immutability + really easy with api design to be hippa compliant (read logs is all that are missing, and are easy)
