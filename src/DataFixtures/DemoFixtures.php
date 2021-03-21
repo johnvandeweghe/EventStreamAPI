@@ -126,13 +126,13 @@ class DemoFixtures extends Fixture
                 $event->setMarkerData(new MarkerEventData(MarkerEventData::MARK_USER_JOINED, false));
                 $event->datetime = new \DateTimeImmutable("Jan 1st");
 
-                if (random_int(0, 1) === 1) {
-                    $subscription = new Subscription();
-                    $subscription->transport = Subscription::TRANSPORT_GENERIC;
-                    $subscription->setStreamUser($streamUser);
-
-                    $manager->persist($subscription);
-                }
+//                if (random_int(0, 1) === 1) {
+//                    $subscription = new Subscription();
+//                    $subscription->transport = Subscription::TRANSPORT_GENERIC;
+//                    $subscription->setStreamUser($streamUser);
+//
+//                    $manager->persist($subscription);
+//                }
 
                 $manager->persist($event);
                 $manager->persist($streamUser);
