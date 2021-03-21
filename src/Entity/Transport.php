@@ -5,6 +5,7 @@ namespace EventStreamApi\Entity;
 use ApiPlatform\Core\Annotation\ApiResource;
 use EventStreamApi\Repository\TransportRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
@@ -21,13 +22,14 @@ class Transport
     /**
      * @ORM\Id
      * @ORM\Column(type="string")
+     * @Groups({"transport:read"})
      */
     private string $name;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
-    public bool $twoWay;
+    public ?string $returnSecret;
 
     public function getName(): ?string
     {

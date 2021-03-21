@@ -1,6 +1,6 @@
 FROM composer:latest as composer
 
-RUN mkdir /ppm && cd /ppm && composer require php-pm/httpkernel-adapter:2.2.0
+RUN mkdir /ppm && cd /ppm && composer require php-pm/httpkernel-adapter:2.2.1
 
 RUN mkdir /application
 

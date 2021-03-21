@@ -32,46 +32,19 @@ the `MESSENGER_TRANSPORT_DSN` env var. Supported transports are... TODO
 
 ## Environmental Variables
 
-### `DATABASE_URL`
-
-This should be set to the connection uri (DSN) to the DB.
-
-Example:
-```postgresql://user:password@hostname:5432/dbname?serverVersion=11&charset=utf8```
-
-### `JWKS_URI`
-
-This should be set to the URI to fetch the JWK set from. 
-
-Example:
-```https://postchat.us.auth0.com/.well-known/jwks.json```
-
-### `JWT_ISSUER`
-
-This should be set to the issuer string that should be trusted in signed JWTs.
-
-Example:
-```https://postchat.us.auth0.com/```
-
-### `JWT_AUDIENCE`
-
-This should be set to the audience that represents this API. Tokens without this audience will be rejected.
-
-Example:
-```https://api.getpostchat.com/```
-
-### `CORS_ALLOW_ORIGIN`
-
-This is the origins allowed for CORS. It is a regex string.
-
-### `MESSENGER_TRANSPORT_DSN`
-
-This configures the transport for the notification events that subscriptions generate to transport handlers.
+Variable | Purpose | Example
+--- | --- | ---
+`DATABASE_URL`      | This should be set to the connection uri (DSN) to the DB. | `postgresql://user:password@hostname:5432/dbname?serverVersion=11&charset=utf8`
+`JWKS_URI`          | This should be set to the URI to fetch the JWK set from. | `https://postchat.us.auth0.com/.well-known/jwks.json`
+`JWT_ISSUER`        | This should be set to the issuer string that should be trusted in signed JWTs. | `https://postchat.us.auth0.com/`
+`JWT_AUDIENCE`      | This should be set to the audience that represents this API. Tokens without this audience will be rejected. | `https://api.getpostchat.com/`
+`CORS_ALLOW_ORIGIN` | This is the origins allowed for CORS. It is a regex string. | `^https?://(localhost\|127\.0\.0\.1)(:[0-9]+)?$`
+`MESSENGER_TRANSPORT_DSN` | This configures the transport for the notification events that subscriptions generate to transport handlers. | `sync://`
+`MESSENGER_RETURN_TRANSPORT_DSN` | This configures the transport for the return events that transports can generate. | `sync://`
 
 # Usage
 
-## Authentication
-The EventStreamAPI is authenticated with RSA signed JWTs. Environmental variables are used to set the issuer, audience, and JWKs uri that are required for the token to verify. This is compatible with many authentication systems, such as Auth0.
+See the (/docs/)[/docs/] folder for some guides on how various parts of the API function. 
 
 ## SDKs
 
@@ -89,3 +62,5 @@ Helm chart to deploy to kube with a DB + messaging backend? (package a messaging
 
 Sample project that uses the API as part of a larger project. Webchat?
 Health care messaging. Immutability + really easy with api design to be hippa compliant (read logs is all that are missing, and are easy)
+
+Add event modifier field ("parent" reference to another event) to event.

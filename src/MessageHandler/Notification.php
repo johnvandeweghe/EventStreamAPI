@@ -6,22 +6,11 @@ use EventStreamApi\Entity\Subscription;
 
 class Notification
 {
-    protected Event $event;
-
-    /**
-     * @var Subscription[]
-     */
-    protected array $subscriptions;
-
     /**
      * @param Event $event
      * @param Subscription[] $subscriptions
      */
-    public function __construct(Event $event, array $subscriptions)
-    {
-        $this->event = $event;
-        $this->subscriptions = $subscriptions;
-    }
+    public function __construct(protected Event $event, protected array $subscriptions){}
 
     public function getEvent(): Event
     {
