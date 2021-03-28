@@ -10,11 +10,11 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20210321213552 extends AbstractMigration
+final class Version20210328071555 extends AbstractMigration
 {
     public function getDescription() : string
     {
-        return '';
+        return 'initial';
     }
 
     public function up(Schema $schema) : void
@@ -22,29 +22,26 @@ final class Version20210321213552 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on \'postgresql\'.');
 
-        $this->addSql('CREATE TABLE event (id UUID NOT NULL, user_id VARCHAR(255) NOT NULL, stream_id UUID NOT NULL, message_event_data_id UUID DEFAULT NULL, marker_event_data_id UUID DEFAULT NULL, transport_id VARCHAR(255) DEFAULT NULL, datetime TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, type VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE event (id UUID NOT NULL, user_id VARCHAR(255) NOT NULL, stream_id UUID NOT NULL, event_data_id UUID DEFAULT NULL, transport_id VARCHAR(255) DEFAULT NULL, datetime TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, type VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_3BAE0AA7A76ED395 ON event (user_id)');
         $this->addSql('CREATE INDEX IDX_3BAE0AA7D0ED463E ON event (stream_id)');
-        $this->addSql('CREATE UNIQUE INDEX UNIQ_3BAE0AA7FB0F4EEB ON event (message_event_data_id)');
-        $this->addSql('CREATE UNIQUE INDEX UNIQ_3BAE0AA71B6C150 ON event (marker_event_data_id)');
+        $this->addSql('CREATE UNIQUE INDEX UNIQ_3BAE0AA7B2A20893 ON event (event_data_id)');
         $this->addSql('CREATE INDEX IDX_3BAE0AA79909C13F ON event (transport_id)');
         $this->addSql('CREATE INDEX idx_e_stream_datetime ON event (stream_id, datetime)');
         $this->addSql('CREATE INDEX idx_e_stream_user_datetime ON event (stream_id, user_id, datetime)');
         $this->addSql('CREATE INDEX idx_e_stream_transport_datetime ON event (stream_id, transport_id, datetime)');
+        $this->addSql('CREATE INDEX idx_e_stream_type_datetime ON event (stream_id, type, datetime)');
         $this->addSql('COMMENT ON COLUMN event.id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN event.stream_id IS \'(DC2Type:uuid)\'');
-        $this->addSql('COMMENT ON COLUMN event.message_event_data_id IS \'(DC2Type:uuid)\'');
-        $this->addSql('COMMENT ON COLUMN event.marker_event_data_id IS \'(DC2Type:uuid)\'');
+        $this->addSql('COMMENT ON COLUMN event.event_data_id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN event.datetime IS \'(DC2Type:datetime_immutable)\'');
+        $this->addSql('CREATE TABLE event_data (id UUID NOT NULL, data TEXT NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('COMMENT ON COLUMN event_data.id IS \'(DC2Type:uuid)\'');
         $this->addSql('CREATE TABLE invite (id UUID NOT NULL, stream_id UUID NOT NULL, expiration TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_C7E210D7D0ED463E ON invite (stream_id)');
         $this->addSql('COMMENT ON COLUMN invite.id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN invite.stream_id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN invite.expiration IS \'(DC2Type:datetime_immutable)\'');
-        $this->addSql('CREATE TABLE marker_event_data (id UUID NOT NULL, mark VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
-        $this->addSql('COMMENT ON COLUMN marker_event_data.id IS \'(DC2Type:uuid)\'');
-        $this->addSql('CREATE TABLE message_event_data (id UUID NOT NULL, data TEXT NOT NULL, PRIMARY KEY(id))');
-        $this->addSql('COMMENT ON COLUMN message_event_data.id IS \'(DC2Type:uuid)\'');
         $this->addSql('CREATE TABLE role (id UUID NOT NULL, stream_id UUID NOT NULL, name VARCHAR(255) NOT NULL, stream_archive BOOLEAN NOT NULL, stream_create BOOLEAN NOT NULL, stream_roles BOOLEAN NOT NULL, stream_edit BOOLEAN NOT NULL, stream_access BOOLEAN NOT NULL, stream_invite BOOLEAN NOT NULL, stream_join BOOLEAN NOT NULL, stream_kick BOOLEAN NOT NULL, stream_write BOOLEAN NOT NULL, stream_read BOOLEAN NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX idx_r_stream_id ON role (stream_id)');
         $this->addSql('COMMENT ON COLUMN role.id IS \'(DC2Type:uuid)\'');
@@ -88,8 +85,7 @@ final class Version20210321213552 extends AbstractMigration
         $this->addSql('CREATE TABLE "user" (id VARCHAR(255) NOT NULL, PRIMARY KEY(id))');
         $this->addSql('ALTER TABLE event ADD CONSTRAINT FK_3BAE0AA7A76ED395 FOREIGN KEY (user_id) REFERENCES "user" (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE event ADD CONSTRAINT FK_3BAE0AA7D0ED463E FOREIGN KEY (stream_id) REFERENCES "stream" (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
-        $this->addSql('ALTER TABLE event ADD CONSTRAINT FK_3BAE0AA7FB0F4EEB FOREIGN KEY (message_event_data_id) REFERENCES message_event_data (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
-        $this->addSql('ALTER TABLE event ADD CONSTRAINT FK_3BAE0AA71B6C150 FOREIGN KEY (marker_event_data_id) REFERENCES marker_event_data (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE event ADD CONSTRAINT FK_3BAE0AA7B2A20893 FOREIGN KEY (event_data_id) REFERENCES event_data (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE event ADD CONSTRAINT FK_3BAE0AA79909C13F FOREIGN KEY (transport_id) REFERENCES transport (name) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE invite ADD CONSTRAINT FK_C7E210D7D0ED463E FOREIGN KEY (stream_id) REFERENCES "stream" (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE role ADD CONSTRAINT FK_57698A6AD0ED463E FOREIGN KEY (stream_id) REFERENCES "stream" (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
@@ -113,9 +109,8 @@ final class Version20210321213552 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'postgresql', 'Migration can only be executed safely on \'postgresql\'.');
 
         $this->addSql('ALTER TABLE stream_user DROP CONSTRAINT FK_3A84EFEA832799BB');
+        $this->addSql('ALTER TABLE event DROP CONSTRAINT FK_3BAE0AA7B2A20893');
         $this->addSql('ALTER TABLE stream_user DROP CONSTRAINT FK_3A84EFEAEA417747');
-        $this->addSql('ALTER TABLE event DROP CONSTRAINT FK_3BAE0AA71B6C150');
-        $this->addSql('ALTER TABLE event DROP CONSTRAINT FK_3BAE0AA7FB0F4EEB');
         $this->addSql('ALTER TABLE "stream" DROP CONSTRAINT FK_F0E9BE1CACD8D90C');
         $this->addSql('ALTER TABLE "stream" DROP CONSTRAINT FK_F0E9BE1CC0C73304');
         $this->addSql('ALTER TABLE "stream" DROP CONSTRAINT FK_F0E9BE1CFD065C3F');
@@ -132,9 +127,8 @@ final class Version20210321213552 extends AbstractMigration
         $this->addSql('ALTER TABLE event DROP CONSTRAINT FK_3BAE0AA7A76ED395');
         $this->addSql('ALTER TABLE stream_user DROP CONSTRAINT FK_3A84EFEAA76ED395');
         $this->addSql('DROP TABLE event');
+        $this->addSql('DROP TABLE event_data');
         $this->addSql('DROP TABLE invite');
-        $this->addSql('DROP TABLE marker_event_data');
-        $this->addSql('DROP TABLE message_event_data');
         $this->addSql('DROP TABLE role');
         $this->addSql('DROP TABLE "stream"');
         $this->addSql('DROP TABLE stream_user');

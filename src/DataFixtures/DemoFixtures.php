@@ -4,12 +4,11 @@ namespace EventStreamApi\DataFixtures;
 
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
-use EventStreamApi\Entity\EventData\MarkerEventData;
 use Faker\Generator;
 use EventStreamApi\Entity\Event;
 use EventStreamApi\Entity\Stream;
 use EventStreamApi\Entity\StreamUser;
-use EventStreamApi\Entity\EventData\MessageEventData;
+use EventStreamApi\Entity\EventData;
 use EventStreamApi\Entity\Subscription;
 use EventStreamApi\Entity\User;
 
@@ -122,8 +121,7 @@ class DemoFixtures extends Fixture
                 $event = new Event();
                 $event->setUser($channelUser);
                 $event->setStream($channel);
-                $event->type = Event::TYPE_MARKER;
-                $event->setMarkerData(new MarkerEventData(MarkerEventData::MARK_USER_JOINED, false));
+                $event->type = Event::MARK_USER_JOINED;
                 $event->datetime = new \DateTimeImmutable("Jan 1st");
 
 //                if (random_int(0, 1) === 1) {
@@ -143,12 +141,12 @@ class DemoFixtures extends Fixture
                 $event = new Event();
                 $event->setUser($channelUsers[array_rand($channelUsers)]);
                 $event->setStream($channel);
-                $event->type = Event::TYPE_MESSAGE;
+                $event->type = "text";
                 $event->datetime = \DateTimeImmutable::createFromMutable($this->faker->dateTimeThisYear);
 
-                $messageEventData = new MessageEventData();
+                $messageEventData = new EventData();
                 $messageEventData->data = $this->faker->realText();
-                $event->setMessageEventData($messageEventData);
+                $event->setEventData($messageEventData);
 
                 $manager->persist($event);
             }

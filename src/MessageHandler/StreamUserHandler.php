@@ -3,7 +3,6 @@ namespace EventStreamApi\MessageHandler;
 
 use Doctrine\Persistence\ObjectManager;
 use EventStreamApi\Entity\Event;
-use EventStreamApi\Entity\EventData\MarkerEventData;
 use EventStreamApi\Entity\StreamUser;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Doctrine\Persistence\ManagerRegistry;
@@ -42,7 +41,7 @@ class StreamUserHandler implements MessageHandlerInterface
 
         //Alert the user that they were added to a child so they can live update - ephemeral
         if(!$deleted && $streamUser->getUser() !== $this->security->getUser() && $streamUser->getStream()->getOwner()) {
-            $addedEvent = Event::createEphemeralMarkerEvent(MarkerEventData::MARK_USER_ADDED_TO_CHILD);
+            $addedEvent = Event::createEphemeralMarkerEvent(Event::MARK_USER_ADDED_TO_CHILD);
             $addedEvent->setStream($streamUser->getStream()->getOwner());
             $addedEvent->setUser($streamUser->getUser());
 
@@ -62,15 +61,10 @@ class StreamUserHandler implements MessageHandlerInterface
         $event->setUser($streamUser->getUser());
         $event->setStream($streamUser->getStream());
         $event->datetime = new \DateTimeImmutable();
-        $event->type = Event::TYPE_MARKER;
-
-        $mark = $userLeft ? MarkerEventData::MARK_USER_LEFT : MarkerEventData::MARK_USER_JOINED;
-        $event->setMarkerData(new MarkerEventData($mark, ephemeral: false));
+        $event->type = $userLeft ? Event::MARK_USER_LEFT : Event::MARK_USER_JOINED;
+        $event->ephemeral = false;
 
         $manager->persist($event);
         $manager->flush();
-
-        $manager->refresh($event);
-        $this->messageBus->dispatch($event);
     }
 }

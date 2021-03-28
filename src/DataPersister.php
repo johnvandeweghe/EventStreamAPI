@@ -5,8 +5,6 @@ use ApiPlatform\Core\Bridge\Symfony\Messenger\RemoveStamp;
 use ApiPlatform\Core\DataPersister\DataPersisterInterface;
 use ApiPlatform\Core\DataPersister\ContextAwareDataPersisterInterface;
 use EventStreamApi\Entity\Event;
-use EventStreamApi\Entity\Stream;
-use EventStreamApi\Entity\StreamUser;
 use EventStreamApi\Entity\User;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -54,7 +52,7 @@ final class DataPersister implements ContextAwareDataPersisterInterface
             $data->datetime = new \DateTimeImmutable();
         }
 
-        $isEphemeralEvent = $data instanceof Event && $data->type === Event::TYPE_MARKER && $data->getMarkerData()->ephemeral;
+        $isEphemeralEvent = $data instanceof Event && $data->ephemeral;
         if(!$isEphemeralEvent) {
             /**
              * @phpstan-ignore-next-line

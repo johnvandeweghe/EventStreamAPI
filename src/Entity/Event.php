@@ -4,16 +4,12 @@ namespace EventStreamApi\Entity;
 
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
-use ApiPlatform\Core\Annotation\ApiProperty;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use Doctrine\ORM\Mapping as ORM;
-use EventStreamApi\Entity\EventData\MarkerEventData;
-use EventStreamApi\Entity\EventData\MessageEventData;
 use EventStreamApi\Repository\EventRepository;
-use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\Nonstandard\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Ramsey\Uuid\UuidInterface;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * TODO={"security"="user.getSreamUserForStream(object.stream).hasPermission('stream:write')"}
@@ -24,27 +20,22 @@ use Symfony\Component\Validator\Constraints as Assert;
  *         "groups"={"event:read"}
  *     },
  *     denormalizationContext={"groups"={"event:write"}},
- *     attributes={"order"={"datetime": "DESC"},"validation_groups"={Event::class, "validationGroups"}}
+ *     attributes={"order"={"datetime": "DESC"}}
  * )
  * @ORM\Entity(repositoryClass=EventRepository::class)
  * @ORM\Table(indexes={
  *     @ORM\Index(name="idx_e_stream_datetime", columns={"stream_id", "datetime"}),
  *     @ORM\Index(name="idx_e_stream_user_datetime", columns={"stream_id", "user_id", "datetime"}),
- *     @ORM\Index(name="idx_e_stream_transport_datetime", columns={"stream_id", "transport_id", "datetime"})
+ *     @ORM\Index(name="idx_e_stream_transport_datetime", columns={"stream_id", "transport_id", "datetime"}),
+ *     @ORM\Index(name="idx_e_stream_type_datetime", columns={"stream_id", "type", "datetime"})
  * })
  */
 class Event
 {
-    public const TYPE_MESSAGE = "message";
-    public const TYPE_MARKER  = "marker";
-
-
-    public const TYPES = [
-        self::TYPE_MESSAGE,
-        self::TYPE_MARKER
-    ];
-
-    public const VALIDATION_DEFAULT = "Default";
+    public const MARK_CHILD_STREAM_CREATED  = "stream-created";
+    public const MARK_USER_ADDED_TO_CHILD   = "user-added-to-child";
+    public const MARK_USER_JOINED           = "user-joined";
+    public const MARK_USER_LEFT             = "user-left";
 
     /**
      * @ORM\Id()
@@ -62,25 +53,17 @@ class Event
     public \DateTimeImmutable $datetime;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * A short string to represent what this event means.
+     * @ORM\Column(type="string", length=255, nullable=true)
      * @Groups({"event:read", "event:write"})
-     * @Assert\Choice(choices=Event::TYPES)
-     * @Assert\NotBlank(groups={
-     *     Event::VALIDATION_DEFAULT,
-     *     Event::TYPE_MESSAGE,
-     *     Event::TYPE_MARKER
-     * })
-     * @ApiProperty(
-     *     attributes={
-     *         "openapi_context"={
-     *             "type"="string",
-     *             "enum"=Event::TYPES,
-     *             "example"=Event::TYPE_MESSAGE
-     *         }
-     *     }
-     * )
      */
     public string $type;
+
+    /**
+     * Whether or not this event should be persisted.
+     * @Groups({"event:read", "event:write"})
+     */
+    public bool $ephemeral = false;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="events")
@@ -98,44 +81,19 @@ class Event
     protected Stream $stream;
 
     /**
-     * @ORM\OneToOne(targetEntity=MessageEventData::class, cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=EventData::class, cascade={"persist", "remove"})
      * @Groups({"event:read", "event:write"})
-     * @Assert\NotBlank(groups={Event::TYPE_MESSAGE})
-     * @Assert\IsNull(groups={Event::VALIDATION_DEFAULT, Event::TYPE_MARKER})
      */
-    protected ?MessageEventData $messageEventData = null;
+    protected ?EventData $eventData = null;
+
 
     /**
-     * @ORM\OneToOne(targetEntity=MarkerEventData::class, cascade={"persist", "remove"})
-     * @Groups({"event:read", "event:write"})
-     * @Assert\NotBlank(groups={Event::TYPE_MARKER})
-     * @Assert\IsNull(groups={Event::VALIDATION_DEFAULT, Event::TYPE_MESSAGE})
-     */
-    protected ?MarkerEventData $markerEventData = null;
-
-    /**
+     * The transport that created this event, if any.
      * @ORM\ManyToOne(targetEntity=Transport::class)
      * @ORM\JoinColumn(name="transport_id", referencedColumnName="name")
      * @Groups({"event:read"})
      */
     protected ?Transport $transport;
-
-    /**
-     * @param Event $event
-     * @return string[]
-     */
-    public static function validationGroups(self $event): array
-    {
-        if ($event->type === self::TYPE_MESSAGE) {
-            return [self::TYPE_MESSAGE];
-        }
-
-        if($event->type === self::TYPE_MARKER) {
-            return [self::TYPE_MARKER];
-        }
-
-        return [self::VALIDATION_DEFAULT];
-    }
 
     /**
      * Creates an event that has private fields the ORM usually sets set to reasonable values for dispatch.
@@ -148,8 +106,8 @@ class Event
         $event = new self();
         $event->setId(Uuid::uuid4());
         $event->datetime = new \DateTimeImmutable();
-        $event->type = self::TYPE_MARKER;
-        $event->markerEventData = new MarkerEventData($mark, true);
+        $event->type = $mark;
+        $event->ephemeral = true;
 
         return $event;
     }
@@ -188,24 +146,14 @@ class Event
         $this->user = $user;
     }
 
-    public function getMessageEventData(): ?MessageEventData
+    public function getEventData(): ?EventData
     {
-        return $this->messageEventData;
+        return $this->eventData;
     }
 
-    public function setMessageEventData(?MessageEventData $messageEventData): void
+    public function setEventData(?EventData $eventData): void
     {
-        $this->messageEventData = $messageEventData;
-    }
-
-    public function getMarkerData(): ?MarkerEventData
-    {
-        return $this->markerEventData;
-    }
-
-    public function setMarkerData(?MarkerEventData $markerEventData): void
-    {
-        $this->markerEventData = $markerEventData;
+        $this->eventData = $eventData;
     }
 
     public function getTransport(): ?Transport

@@ -2,7 +2,6 @@
 namespace EventStreamApi\MessageHandler;
 
 use EventStreamApi\Entity\Event;
-use EventStreamApi\Entity\EventData\MarkerEventData;
 use EventStreamApi\Entity\Role;
 use EventStreamApi\Entity\Stream;
 use EventStreamApi\Entity\StreamUser;
@@ -112,7 +111,7 @@ class StreamHandler implements MessageHandlerInterface
      */
     protected function alertParentOfNewChild(Stream $owner, User $user): void
     {
-        $streamAddedEvent = Event::createEphemeralMarkerEvent(MarkerEventData::MARK_CHILD_STREAM_CREATED);
+        $streamAddedEvent = Event::createEphemeralMarkerEvent(Event::MARK_CHILD_STREAM_CREATED);
         $streamAddedEvent->setStream($owner);
         $streamAddedEvent->setUser($user);
 
