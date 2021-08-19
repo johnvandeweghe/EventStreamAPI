@@ -1,6 +1,6 @@
 FROM composer:latest as composer
 
-RUN mkdir /ppm && cd /ppm && composer require php-pm/httpkernel-adapter:2.2.1
+RUN mkdir /ppm && cd /ppm && composer require --ignore-platform-reqs php-pm/httpkernel-adapter:2.0.6
 
 RUN mkdir /application
 
@@ -14,6 +14,10 @@ RUN cd /application && composer install -o --no-dev --no-scripts
 
 FROM php:8.0-cli
 
+EXPOSE 8080
+
+WORKDIR /application
+
 RUN apt-get update && apt-get install -y libpq-dev libicu-dev \
     && docker-php-ext-install intl pdo_pgsql pcntl opcache \
     && pecl install apcu \
@@ -21,14 +25,10 @@ RUN apt-get update && apt-get install -y libpq-dev libicu-dev \
 
 COPY docker/php-pm/php.ini /usr/local/etc/php/conf.d/99-overrides.ini
 
-EXPOSE 8080
-
-WORKDIR /application
-
-COPY . /application
+COPY . .
 
 # Can't ignore because we want it from the other layer :\
-RUN rm -rf vendor/
+#RUN rm -rf vendor/
 
 COPY --from=composer /ppm /ppm
 COPY --from=composer /application/vendor /application/vendor/

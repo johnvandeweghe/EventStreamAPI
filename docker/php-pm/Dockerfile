@@ -1,6 +1,6 @@
 FROM composer:latest as composer
 
-RUN mkdir /ppm && cd /ppm && composer require php-pm/httpkernel-adapter:dev-master
+RUN mkdir /ppm && cd /ppm && composer require --ignore-platform-reqs php-pm/httpkernel-adapter:dev-master
 
 FROM php:8.0-cli
 

@@ -22,7 +22,7 @@ class TokenVerifier
     public function verify(string $token): array
     {
         $keys = $this->getJWKs();
-        $verifiedToken = (array) JWT::decode($token, $keys, ["RSA256"]);
+        $verifiedToken = (array) JWT::decode($token, $keys, ["RS256"]);
 
 
         $iss = $verifiedToken["iss"] ?? null;
