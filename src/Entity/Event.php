@@ -70,7 +70,7 @@ class Event
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"event:read"})
      */
-    protected User $user;
+    protected ?User $user = null; // This will be set to the current user if created from the api
 
     /**
      * @ORM\ManyToOne(targetEntity=Stream::class, inversedBy="events")
@@ -136,7 +136,7 @@ class Event
         $this->stream = $stream;
     }
 
-    public function getUser(): User
+    public function getUser(): ?User
     {
         return $this->user;
     }

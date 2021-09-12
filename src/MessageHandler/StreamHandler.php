@@ -1,38 +1,30 @@
 <?php
 namespace EventStreamApi\MessageHandler;
 
+use EventStreamApi\DataPersister;
 use EventStreamApi\Entity\Event;
 use EventStreamApi\Entity\Role;
 use EventStreamApi\Entity\Stream;
 use EventStreamApi\Entity\StreamUser;
 use EventStreamApi\Entity\User;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Core\Security;
-use Doctrine\Persistence\ManagerRegistry;
 
 class StreamHandler implements MessageHandlerInterface
 {
-    private Security $security;
-    private ManagerRegistry $managerRegistry;
-    private MessageBusInterface $messageBus;
-
-    public function __construct(Security $security, ManagerRegistry $managerRegistry, MessageBusInterface $messageBus)
-    {
-        $this->security = $security;
-        $this->managerRegistry = $managerRegistry;
-        $this->messageBus = $messageBus;
-    }
+    public function __construct(
+        private Security $security,
+        private DataPersister $dataPersister
+    ) {}
 
     public function __invoke(Stream $stream): void
     {
-        $manager = $this->managerRegistry->getManagerForClass(Stream::class);
         /**
          * @var ?User $user
          */
         $user = $this->security->getUser();
 
-        if (!$manager || !$user || $stream->hasUser($user)){
+        if (!$user || $stream->hasUser($user)){
             //Prevent triggering new stream behavior again, assume if the user is already in it it must be update event.
             return;
         }
@@ -45,18 +37,16 @@ class StreamHandler implements MessageHandlerInterface
 
         $streamUser->addRole($stream->getDefaultCreatorRole());
 
-        $manager->persist($streamUser);
-        $manager->persist($stream);
+        $this->dataPersister->persist($streamUser);
 
         //Alert the parent stream that there is a new child to live update stream lists
         if($stream->discoverable && ($owner = $stream->getOwner())) {
-            $this->alertParentOfNewChild($owner, $user);
+            $streamAddedEvent = new Event();
+            $streamAddedEvent->setStream($owner);
+            $streamAddedEvent->type = Event::MARK_CHILD_STREAM_CREATED;
+            $streamAddedEvent->ephemeral = true;
+            $this->dataPersister->persist($streamAddedEvent);
         }
-
-        $manager->flush();
-        $manager->refresh($streamUser);
-
-        $this->messageBus->dispatch($streamUser);
     }
 
     /**
@@ -105,16 +95,4 @@ class StreamHandler implements MessageHandlerInterface
         }
     }
 
-    /**
-     * @param Stream $owner
-     * @param User $user
-     */
-    protected function alertParentOfNewChild(Stream $owner, User $user): void
-    {
-        $streamAddedEvent = Event::createEphemeralMarkerEvent(Event::MARK_CHILD_STREAM_CREATED);
-        $streamAddedEvent->setStream($owner);
-        $streamAddedEvent->setUser($user);
-
-        $this->messageBus->dispatch($streamAddedEvent);
-    }
 }

@@ -131,6 +131,7 @@ class StreamUser
     public function setUser(User $user): void
     {
         $this->user = $user;
+        $this->user->addStreamUser($this);
     }
 
     /**

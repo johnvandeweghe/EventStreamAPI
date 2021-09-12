@@ -20,3 +20,5 @@
 .ppm
 infection.log
 tools/vendor/
+
+jwks.json

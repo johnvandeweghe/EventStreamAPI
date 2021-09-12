@@ -39,28 +39,20 @@ final class DataPersister implements ContextAwareDataPersisterInterface
      */
     public function persist($data, array $context = [])
     {
-        /**
-         * @var User|null $user
-         */
-        $user = $this->security->getUser();
-        if(!$user) {
-            return $data;
-        }
-
+        // Pre save events go here, post save events/triggers/data happen as event handlers.
         if ($data instanceof Event) {
-            $data->setUser($user);
-            $data->datetime = new \DateTimeImmutable();
+            $this->setDefaultEventFields($data);
         }
 
         $isEphemeralEvent = $data instanceof Event && $data->ephemeral;
-        if(!$isEphemeralEvent) {
+        if($isEphemeralEvent) {
+            $result = $data;
+            $result->setId(Uuid::uuid4());
+        } else {
             /**
              * @phpstan-ignore-next-line
              */
             $result = $this->decorated->persist($data, $context);
-        } else {
-            $result = $data;
-            $result->setId(Uuid::uuid4());
         }
 
         $this->messageBus->dispatch($result);
@@ -85,5 +77,26 @@ final class DataPersister implements ContextAwareDataPersisterInterface
         $this->decorated->remove($data, $context);
 
         $this->messageBus->dispatch($data, [new RemoveStamp()]);
+    }
+
+    /**
+     * @param Event $data
+     */
+    private function setDefaultEventFields(Event $data): void
+    {
+        //If the user wasn't set, and we are under the context of a user making an api request we should use that.
+        if (!$data->getUser()) {
+            /**
+             * @var User|null $user
+             */
+            $user = $this->security->getUser();
+            if (!$user) {
+                throw new \RuntimeException("Unable to create event, no user set and not currently under a user context");
+            }
+            $data->setUser($user);
+        }
+
+        //Always set the time to server time, this ensures integrity if it was set some other way.
+        $data->datetime = new \DateTimeImmutable();
     }
 }
