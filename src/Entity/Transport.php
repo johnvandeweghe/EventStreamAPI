@@ -22,14 +22,15 @@ class Transport
     /**
      * @ORM\Id
      * @ORM\Column(type="string")
-     * @Groups({"transport:read"})
+     * @Groups({"transport:read", "event:read"})
      */
     private string $name;
 
     /**
+     * Pem formatted public key that corresponds to the transport's private key it will sign return messages with.
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    public ?string $returnSecret;
+    public ?string $publicKey;
 
     public function getName(): ?string
     {

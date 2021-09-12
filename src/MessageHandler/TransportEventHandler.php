@@ -24,9 +24,11 @@ class TransportEventHandler implements MessageHandlerInterface
             return;
         }
 
-        $signature = hash_hmac("sha256", $transportEvent->getEvent()->getId(), $transport->returnSecret);
-
-        if (!hash_equals($signature, $transportEvent->getSignature())) {
+        if (!openssl_verify(
+            $transportEvent->getEvent()->getId(),
+            $transportEvent->getSignature(),
+            $transport->publicKey
+        )) {
             // Ignore events with an invalid signature (malicious transport).
             return;
         }
@@ -40,6 +42,6 @@ class TransportEventHandler implements MessageHandlerInterface
 
         // TODO: Handle events in streams that the user doesn't belong to
 
-
+        // Save event
     }
 }

@@ -93,7 +93,7 @@ class Event
      * @ORM\JoinColumn(name="transport_id", referencedColumnName="name")
      * @Groups({"event:read"})
      */
-    protected ?Transport $transport;
+    protected ?Transport $transport = null;
 
     /**
      * Creates an event that has private fields the ORM usually sets set to reasonable values for dispatch.
