@@ -93,7 +93,7 @@ class GuardAuthenticatorTest extends TestCase
 
         $tokenVerifier = $this->getMockBuilder(TokenVerifier::class)->disableOriginalConstructor()->getMock();
         $mangerRegistry = $this->getMockBuilder(ManagerRegistry::class)->disableOriginalConstructor()->getMock();
-        $userRepository = $this->getMockBuilder(UserRepository::class)->disableOriginalConstructor()->setMethods(['find'])->getMock();
+        $userRepository = $this->getMockBuilder(UserRepository::class)->disableOriginalConstructor()->getMock();
         $entityManager = $this->getMockBuilder(EntityManager::class)->disableOriginalConstructor()->getMock();
         $tokenVerifier->method('verify')->willReturn($validatedToken);
         $mangerRegistry->method('getManagerForClass')->with(User::class)->willReturn($entityManager);
@@ -122,7 +122,7 @@ class GuardAuthenticatorTest extends TestCase
         $passport = $authenticator->authenticate($request);
 
         $user = $passport->getUser();
-        self::assertEquals($validatedToken['sub'], $user->getUsername());
+        self::assertEquals($validatedToken['sub'], $user->getUserIdentifier());
         self::assertInstanceOf(User::class, $user);
     }
 
@@ -136,7 +136,7 @@ class GuardAuthenticatorTest extends TestCase
 
         $tokenVerifier = $this->getMockBuilder(TokenVerifier::class)->disableOriginalConstructor()->getMock();
         $mangerRegistry = $this->getMockBuilder(ManagerRegistry::class)->disableOriginalConstructor()->getMock();
-        $userRepository = $this->getMockBuilder(UserRepository::class)->disableOriginalConstructor()->setMethods(['find'])->getMock();
+        $userRepository = $this->getMockBuilder(UserRepository::class)->disableOriginalConstructor()->getMock();
         $entityManager = $this->getMockBuilder(EntityManager::class)->disableOriginalConstructor()->getMock();
         $tokenVerifier->method('verify')->willReturn($validatedToken);
         $mangerRegistry->method('getManagerForClass')->with(User::class)->willReturn($entityManager);

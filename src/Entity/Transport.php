@@ -28,7 +28,7 @@ class Transport
 
     /**
      * Pem formatted public key that corresponds to the transport's private key it will sign return messages with.
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="text", nullable=true)
      */
     public ?string $publicKey;
 
