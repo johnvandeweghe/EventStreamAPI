@@ -32,6 +32,12 @@ class Transport
      */
     public ?string $publicKey;
 
+    public function __construct(string $name, ?string $publicKey)
+    {
+        $this->name = $name;
+        $this->publicKey = $publicKey;
+    }
+
     public function getName(): ?string
     {
         return $this->name;

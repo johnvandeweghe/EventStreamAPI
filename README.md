@@ -4,9 +4,7 @@ This is a RESTful API for Event Streams with rich user event notification integr
 
 # Installation
 
-Use Docker. Until v1 is published you will need to build it locally and push the image to a registry.
-
-TODO: Publish image at v1.0.0...
+See packages in GitHub for a Docker image.
 
 The Dockerfile in the project root is meant for prod.
 
@@ -57,12 +55,10 @@ Messages sent to transports for a subscription should generate an entry on that 
 Transports should be able to send data back without credentials/api calls. Relevant to ^ because responses for a sub log can come from that.
 
 Publish webhook transport from postchat
-Publish simplified typescipt sdk
 
 Add messaging lib back in (enqueue) now that it supports php 8
-Helm chart to deploy to kube with a DB + messaging backend? (package a messaging backend somehow in helm)
+Helm chart to deploy to kube with a DB + messaging backend (redis)
 
 Sample project that uses the API as part of a larger project. Webchat?
-Health care messaging. Immutability + really easy with api design to be hippa compliant (read logs is all that are missing, and are easy)
 
 Add event modifier field ("parent" reference to another event) to event.
