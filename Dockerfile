@@ -1,4 +1,8 @@
-FROM composer:latest as composer
+FROM php:8.0-cli as build
+
+COPY --from=composer /usr/bin/composer /usr/bin/composer
+
+RUN apt-get update && apt-get install -y git zip
 
 RUN mkdir /ppm && cd /ppm && composer require --ignore-platform-reqs php-pm/httpkernel-adapter:2.0.6
 
@@ -30,8 +34,8 @@ COPY . .
 # Can't ignore because we want it from the other layer :\
 #RUN rm -rf vendor/
 
-COPY --from=composer /ppm /ppm
-COPY --from=composer /application/vendor /application/vendor/
+COPY --from=build /ppm /ppm
+COPY --from=build /application/vendor /application/vendor/
 
 ENV APP_ENV=prod
 

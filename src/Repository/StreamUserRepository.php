@@ -11,6 +11,7 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method StreamUser|null findOneBy(array $criteria, array $orderBy = null)
  * @method StreamUser[]    findAll()
  * @method StreamUser[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @template-extends ServiceEntityRepository<StreamUser>
  */
 class StreamUserRepository extends ServiceEntityRepository
 {

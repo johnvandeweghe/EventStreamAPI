@@ -28,16 +28,25 @@ class CreateTransport extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        /**
+         * @var string|null $publicKey
+         */
         $publicKey = $input->getArgument('public_key');
-        if ($publicKey) {
+        if ($publicKey && is_string($publicKey)) {
             $publicKey = base64_decode($publicKey);
-            if(!openssl_pkey_get_public($publicKey)) {
+            if(!$publicKey || !openssl_pkey_get_public($publicKey)) {
                 $output->writeln("Invalid public key.");
                 return Command::FAILURE;
             }
         }
 
-        $transport = new Transport($input->getArgument('name'), $publicKey);
+        $name = $input->getArgument('name');
+        if (!is_string($name)) {
+            $output->writeln("Invalid name.");
+            return Command::FAILURE;
+        }
+
+        $transport = new Transport($name, $publicKey);
 
         $this->dataPersister->persist($transport);
 

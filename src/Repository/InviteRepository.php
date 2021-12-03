@@ -11,6 +11,7 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method Invite|null findOneBy(array $criteria, array $orderBy = null)
  * @method Invite[]    findAll()
  * @method Invite[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @template-extends ServiceEntityRepository<Invite>
  */
 class InviteRepository extends ServiceEntityRepository
 {
